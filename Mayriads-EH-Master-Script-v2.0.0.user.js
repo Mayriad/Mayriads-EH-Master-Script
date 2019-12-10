@@ -5,6 +5,9 @@
 // @author          Mayriad
 // @description     Adds 24+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
+// @updateURL       https://openuserjs.org/meta/Mayriad/Mayriads_EH_Master_Script.meta.js
+// @downloadURL     https://openuserjs.org/install/Mayriad/Mayriads_EH_Master_Script.user.js
+// @supportURL      https://github.com/Mayriad/Mayriads-EH-Master-Script
 // @match           https://e-hentai.org/*
 // @match           https://exhentai.org/*
 // @match           https://repo.e-hentai.org/*
@@ -46,11 +49,17 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+// Userscript download: https://openuserjs.org/install/Mayriad/Mayriads_EH_Master_Script.user.js
+// GitHub repository: https://github.com/Mayriad/Mayriads-EH-Master-Script
+// User manual: https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md
+// Userscript wiki: https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki
+// Discussion thread: https://forums.e-hentai.org/index.php?showtopic=233955
+
 /* global GM, GM_setValue, GM_getValue, GM_xmlhttpRequest, GM_info, alert, XPathResult, MutationObserver, DOMParser,
   Blob */
-'use strict'
 
 ;(function () {
+  'use strict'
   // JSDoc definitions -------------------------------------------------------------------------------------------------
 
   /**
@@ -2432,16 +2441,19 @@
       const scriptInfoRow = extendWithAnchor(appendRow(controlPanel, 0), undefined, `${api.info.script.name} ` +
         `v${api.info.script.version}`, 'https://e-hentai.org', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
-      extendWithAnchor(scriptInfoRow, undefined, 'GitHub Repository', 'https://e-hentai.org', true)
+      extendWithAnchor(scriptInfoRow, undefined, 'GitHub Repository',
+        'https://github.com/Mayriad/Mayriads-EH-Master-Script', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
-      extendWithAnchor(scriptInfoRow, undefined, 'User Manual', 'https://e-hentai.org', true)
+      extendWithAnchor(scriptInfoRow, undefined, 'User Manual',
+        'https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
-      extendWithAnchor(scriptInfoRow, undefined, 'Discussion Thread', 'https://e-hentai.org', true)
+      extendWithAnchor(scriptInfoRow, undefined, 'Discussion Thread',
+        'https://forums.e-hentai.org/index.php?showtopic=233955', true)
 
       // Sitewide features ---------------------------------------------------------------------------------------------
 
       controlPanel.insertRow(-1)
-      extendWithStrongText(appendRow(controlPanel, 0), undefined, 'Sitewide features')
+      extendWithStrongText(appendRow(controlPanel, 0), undefined, 'Site-wide features')
 
       // applyDarkTheme
 
