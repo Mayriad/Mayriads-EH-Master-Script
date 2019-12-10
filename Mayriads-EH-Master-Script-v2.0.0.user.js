@@ -35,7 +35,6 @@
 /**
  * @author Mayriad
  * @copyright 2015-2019 Mayriad
- * @file Adds 24+ features to E-Hentai
  * @license GNU General Public License v3.0 or later
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -3562,9 +3561,9 @@
      *
      * @param {HTMLDivElement} galleryDownloadButton - The gallery download button associated with this attempt.
      * @param {string} downloadUrl - The URL to which this XHR will be sent to request the file download.
-     * @param {string} downloadType - 'torrent' or 'archive'.
+     * @param {string} filename - The full filename for the file to be downloaded and saved.
      */
-    const downloadUsingApi = function (galleryDownloadButton, downloadUrl, downloadType, filename) {
+    const downloadUsingApi = function (galleryDownloadButton, downloadUrl, filename) {
       if (typeof api.download === 'undefined') {
         handleError(galleryDownloadButton, 'gmDownloadNotSupportedError')
         return
@@ -3585,7 +3584,7 @@
         },
         ontimeout: function (response) {
           // Retry the download after the 30s timeout, until the user aborts this download attempt using the button.
-          downloadUsingApi(galleryDownloadButton, downloadUrl, downloadType)
+          downloadUsingApi(galleryDownloadButton, downloadUrl, filename)
         },
         onabort: function (response) {
           changeGalleryDownloadState(galleryDownloadButton, 'idle')
@@ -3614,10 +3613,10 @@
               handleError(galleryDownloadButton, 'networkError')
             } else if (runtimeError.details.current === 'SERVER_FAILED') {
               // The test-and-download process will be tried again when some server problem breaks the download.
-              if (downloadType === 'archive') {
-                testDownloadHeaders(galleryDownloadButton, downloadUrl, downloadArchive)
-              } else {
+              if (filename.includes('.torrent')) {
                 attemptDownloadStep(galleryDownloadButton, downloadUrl, downloadTorrent)
+              } else {
+                testDownloadHeaders(galleryDownloadButton, downloadUrl, downloadArchive)
               }
             }
         }
@@ -3927,7 +3926,7 @@
       }
       const filename = decodeURIComponent(escape(responseReceived.responseHeaders.match(/filename="(.+)"$/m)[1]))
       if (shortcuts.apiTorrentDownloadEnabled) {
-        downloadUsingApi(galleryDownloadButton, responseReceived.finalUrl, 'torrent', filename)
+        downloadUsingApi(galleryDownloadButton, responseReceived.finalUrl, filename)
       } else {
         downloadUsingIframe(galleryDownloadButton, responseReceived.finalUrl)
       }
@@ -4134,7 +4133,7 @@
      */
     const downloadArchive = function (galleryDownloadButton, documentReceived, responseReceived) {
       const filename = decodeURIComponent(escape(responseReceived.responseHeaders.match(/filename="(.+)"$/m)[1]))
-      downloadUsingApi(galleryDownloadButton, responseReceived.finalUrl, 'archive', filename)
+      downloadUsingApi(galleryDownloadButton, responseReceived.finalUrl, filename)
     }
 
     // Page download
