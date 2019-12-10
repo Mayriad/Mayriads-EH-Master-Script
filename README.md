@@ -2,8 +2,6 @@
 
 [![GitHub Release](https://img.shields.io/github/release/Mayriad/Mayriads-EH-Master-Script)]() [![Github Release Date](https://img.shields.io/github/release-date/Mayriad/Mayriads-EH-Master-Script)]() [![Github License](https://img.shields.io/github/license/Mayriad/Mayriads-EH-Master-Script)]() [![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen)]()
 
-`TODO: Github Release Version` `TODO: Github Release Date` `TODO: license` `TODO: standardjs`
-
 [Userscript Download]() • [Userscript Wiki]() • [Discussion Thread]()
 
 Adds 24+ features to E-Hentai.
@@ -38,44 +36,44 @@ This is just short list to show its features. A longer list with explanations is
 
 - Scientific dark theme
 - Scientific light theme
-- Design fixes
-- Subjective fixes
-- Improved navigation bar
+- Design fixes (enabled by default)
+- Subjective fixes (enabled by default)
+- Improved navigation bar (enabled by default)
 - Comment and forum filters
-- Jump to top/bottom buttons
-- Dawn reward extension
+- Jump to top/bottom buttons (enabled by default)
+- Dawn reward extension (enabled by default)
 
 
 **Gallery list features:**
 
 - Additional gallery filters
 - Unselect category buttons
-- Full titles above thumbnails
-- Gallery colour coding
+- Full titles above thumbnails (enabled by default)
+- Gallery colour coding (enabled by default)
 - Gallery download shortcuts
-- Open galleries in tabs
+- Open galleries in tabs (enabled by default)
 
 **Gallery view features:**
 
-- Vigilante thread links
-- Alternative rating system
-- Clickable external URLs
+- Vigilante thread links (enabled by default)
+- Alternative rating system (enabled by default)
+- Clickable external URLs (enabled by default)
 
 **Image view features:**
 
-- Basic viewer fit-to-screen
-- MPV fit-to-screen
-- Hide MPV toolbar
+- Basic viewer fit-to-screen (enabled by default)
+- MPV fit-to-screen (enabled by default)
+- Hide MPV toolbar (enabled by default)
 - Remove MPV tooltips
-- Relocate MPV thumbnails
+- Relocate MPV thumbnails (enabled by default)
 
 **Upload management features:**
 
-- Upload guide links
+- Upload guide links (enabled by default)
 
 **Script features:**
 
-- GUI control panel
+- GUI control panel (always on)
 
 [⇧ Back to table of contents](#table-of-contents)
 
