@@ -48,7 +48,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-// Userscript download: https://openuserjs.org/install/Mayriad/Mayriads_EH_Master_Script.user.js
+// Userscript download: https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script
 // GitHub repository: https://github.com/Mayriad/Mayriads-EH-Master-Script
 // User manual: https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md
 // Userscript wiki: https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki
