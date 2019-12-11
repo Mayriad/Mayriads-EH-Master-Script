@@ -86,7 +86,7 @@ Firstly, regarding compatibility:
 
 When your browser and userscript engine are ready, head to [this userscript's page on OpenUserJS](https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script) and install it. Please install it from OpenUserJS so that I can keep track of the downloads. You should be able to update this script directly from your userscript engine, although sometimes the engine can fail to detect updates from experience.
 
-If you are going to use the automated gallery downloads feature, you may have to complete one or two additional simple steps to grant this script the permission it needs to download archives and/or torrents from EH. These steps are explained in [the dedicated wiki page for this feature](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Automated-Gallery-Downloads).
+If you are going to use the automated gallery downloads feature, you may have to complete one or two additional simple steps to grant this script the permission it needs to download archives and/or torrents from EH. These steps are explained in [the dedicated wiki page for this feature](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Automated-gallery-downloads).
 
 [⇧ Back to table of contents](#table-of-contents)
 
@@ -94,7 +94,7 @@ If you are going to use the automated gallery downloads feature, you may have to
 
 When you first activate this script, you should notice that there is a button that says "Configure Mayriad's Script" on all gallery lists. Clicking this button will open the GUI control panel and you can then enable the features and options you plan to use. You can read a bit more about the features in [the wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Feature-descriptions). Some recommend features and options are enabled by default, so you can see their effects immediately after this script is activated.
 
-This control panel is built into all types of gallery lists on EH, and this should be the only thing you need to control this script. Your settings should persist between updates, so you should not need to touch the code at all. The control panel has explanations for all features and options, and notifications will tell you what to do, so in general this script should be very straightforward to use. You may want to read a bit more about the relatively complicated automated gallery downloads feature in [the wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Automated-Gallery-Downloads), though.
+This control panel is built into all types of gallery lists on EH, and this should be the only thing you need to control this script. Your settings should persist between updates, so you should not need to touch the code at all. The control panel has explanations for all features and options, and notifications will tell you what to do, so in general this script should be very straightforward to use. You may want to read a bit more about the relatively complicated automated gallery downloads feature in [the wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Automated-gallery-downloads), though.
 
 After you have changed the settings, remember to click the save button in the top left corner and refresh the page like the notification will say. Then you can start enjoying a better EH with my script.
 
