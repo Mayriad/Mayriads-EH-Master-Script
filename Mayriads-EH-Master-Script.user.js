@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.0.0
+// @version         2.0.1
 // @author          Mayriad
 // @description     Adds 24+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -54,8 +54,7 @@
 // Userscript wiki: https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki
 // Discussion thread: https://forums.e-hentai.org/index.php?showtopic=233955
 
-/* global GM, GM_setValue, GM_getValue, GM_xmlhttpRequest, GM_info, alert, XPathResult, MutationObserver, DOMParser,
-  Blob */
+/* global GM, alert, XPathResult, MutationObserver, DOMParser, Blob */
 
 ;(function () {
   'use strict'
@@ -70,25 +69,21 @@
 
   // Initialisation ----------------------------------------------------------------------------------------------------
 
-  // Check the availablility of GM API v4 and decide what GM API methods can be used.
-  let api = {}
-  if (typeof GM !== 'undefined') {
-    // For Tampermonkey and Greasemonkey, which use GM API v4.
-    api = {
-      setValue: GM.setValue,
-      getValue: GM.getValue,
-      download: GM.download,
-      xmlHttpRequest: GM.xmlHttpRequest,
-      info: GM.info
-    }
+  // Violentmonkey now also supports GM.* aliases that are compatible with GM API v4, but GM.download() is still not
+  // supported. Therefore, GM.download() can be used to check the userscript engine.
+  const api = {
+    setValue: GM.setValue,
+    getValue: GM.getValue,
+    xmlHttpRequest: GM.xmlHttpRequest,
+    info: GM.info
+  }
+  if (typeof GM.download !== 'undefined') {
+    // Tampermonkey
+    api.download = GM.download
+    api.version = 'v4'
   } else {
-    // For Violentmonkey, which is still using GM API v3. GM_download is not mapped because it does not work well.
-    api = {
-      setValue: GM_setValue,
-      getValue: GM_getValue,
-      xmlHttpRequest: GM_xmlhttpRequest,
-      info: GM_info
-    }
+    // Violentmonkey
+    api.version = 'v3'
   }
 
   // Initialise the settings using the default values below before reading actual settings from the userscript storage.
@@ -172,7 +167,7 @@
       mpsModeEnabled: false,
       seamlessModeEnabled: false
     },
-    useDownloadShortcuts: {
+    useAutomatedDownloads: {
       featureEnabled: false,
       torrentDownloadEnabled: true,
       torrentRequirementsEnabled: true,
@@ -219,7 +214,7 @@
     improveNavigationBar: {
       lastKarmaRead: ''
     },
-    useDownloadShortcuts: {
+    useAutomatedDownloads: {
       pagesToDownload: {}
     },
     collectDawnReward: {
@@ -242,7 +237,7 @@
       posterFilterType: ['forum posts', 'forum threads', 'forum posts and threads'],
       postFilterType: ['forum posts', 'forum threads', 'forum posts and threads']
     },
-    useDownloadShortcuts: {
+    useAutomatedDownloads: {
       archiveDownloadType: ['original archive', 'resample archive', 'H@H 780x', 'H@H 980x', 'H@H 1280x',
         'H@H 1600x', 'H@H 2400x', 'H@H original']
     },
@@ -296,7 +291,7 @@
           'posts that contain any of these keywords.'
       }
     },
-    useDownloadShortcuts: {
+    useAutomatedDownloads: {
       minimumSeedNumber: {
         emptyInputError: 'Since torrent download has been enabled, please enter the minimum number of seeds that ' +
           'will be required before a torrent can be considered healthy and viable. Entering 0 would remove this ' +
@@ -354,8 +349,8 @@
         gmDownloadNotEnabledError: 'An archive download failed, because the GM.download() function is not enabled ' +
           'or does not have permission. Please check the "downloads beta" section in your Tampermonkey settings.',
         gmDownloadNotSupportedError: 'An archive download failed, because the GM.download() function is not ' +
-          'supported by your userscript engine or browser. Please note that the archive download feature requires ' +
-          'Tampermonkey running on modern browsers.',
+          'supported by your userscript engine. Please note that the archive download feature requires Tampermonkey ' +
+          'running on modern browsers.',
         crossOriginNotAllowedError: 'An archive download failed, because this script is not allowed to access ' +
           'cross-origin archive servers. Archives are served from random cross-origin servers, so this script needs ' +
           'to be granted access to all domains at all times in Tampermonkay.',
@@ -395,12 +390,55 @@
         // Use the saved data directly when the version and hence the script have not changed.
         return savedData
       } else {
-        // Update the keys of the saved data and use the updated data.
-        const updatedData = updateData(savedData, defaultData, 2)
+        // Update the keys of the saved data after a script update and use the updated data.
+        const updatedData = updateKeys(renameKeys(savedData, 2), defaultData, 2)
         // Update the userscript storage as well so that the data do not need to be updated everytime this script runs.
-        api.setValue(savedDataName, JSON.stringify(defaultData))
+        updatedData.script.version = defaultData.script.version
+        api.setValue(savedDataName, JSON.stringify(updatedData))
         return updatedData
       }
+    }
+
+    /**
+     * Renames keys of an object literal while keeping their values by creating new properties and removing old ones.
+     *
+     * It is easier to do this task in a separate function that runs before updateData(). This function always runs in
+     * loadData() but does nothing when the rename list is empty.
+     *
+     * @param {Object} data - An object literal whose keys will be renamed when needed.
+     * @param {number} levelsToCheck - An integer n, which means the function will check up to keys on the nth level.
+     * @returns {Object} An object literal whose keys have been renamed where necessary.
+     */
+    const renameKeys = function (data, levelsToCheck) {
+      // This object should contain "old name": "new name" pairs.
+      const renames = {
+        useDownloadShortcuts: 'useAutomatedDownloads'
+      }
+      // Make no change and directly return the same object when nothing needs to be renamed.
+      if (Object.keys(renames).length === 0) {
+        return data
+      }
+
+      for (const oldName of Object.keys(renames)) {
+        for (const key of Object.keys(data)) {
+          // Try to find and rename the target property on one level in one branch, and use recursion where applicable.
+          // The search is rather thorough because it assumes the same property can exist on multiple levels in multiple
+          // branches.
+          if (key === oldName) {
+            const newName = renames[oldName]
+            data[newName] = data[oldName]
+            delete data[oldName]
+            if (levelsToCheck > 1) {
+              data[newName] = renameKeys(data[newName], levelsToCheck - 1)
+            }
+            // Break the loop since the same key cannot exist twice on one level in one branch.
+            break
+          } else if (levelsToCheck > 1) {
+            data[key] = renameKeys(data[key], levelsToCheck - 1)
+          }
+        }
+      }
+      return data
     }
 
     /**
@@ -411,7 +449,7 @@
      * @param {number} levelsToCheck - An integer n, which means the function will check up to keys on the nth level.
      * @returns {Object} An object literal whose keys and values are adjusted to match the defaults where necessary.
      */
-    const updateData = function (savedData, defaultData, levelsToCheck) {
+    const updateKeys = function (savedData, defaultData, levelsToCheck) {
       const keyUnion = [...new Set([...Object.keys(savedData), ...Object.keys(defaultData)])]
       for (const key of keyUnion) {
         if (typeof savedData[key] === 'undefined') {
@@ -425,7 +463,7 @@
         } else {
           if (levelsToCheck > 1) {
             // Check the keys under this key when this key is consistent between the two data objects.
-            savedData[key] = updateData(savedData[key], defaultData[key], levelsToCheck - 1)
+            savedData[key] = updateKeys(savedData[key], defaultData[key], levelsToCheck - 1)
           }
         }
       }
@@ -1012,7 +1050,7 @@
 
     // Group 5: functions that require user input to activate and can hence load late.
     addControlPanel()
-    settings.useDownloadShortcuts.featureEnabled && useDownloadShortcuts()
+    settings.useAutomatedDownloads.featureEnabled && useAutomatedDownloads()
     settings.openGalleriesSeparately.featureEnabled && openGalleriesSeparately()
     settings.addJumpButtons.featureEnabled && addJumpButtons()
     settings.parseExternalLinks.featureEnabled && parseExternalLinks()
@@ -1805,7 +1843,14 @@
           fetchUnreadPmCount()
         }
       }
-      api.xmlHttpRequest(xhrDetails).catch(runtimeError => {})
+
+      const errorHandler = runtimeError => {}
+      if (api.version === 'v4') {
+        api.xmlHttpRequest(xhrDetails).catch(errorHandler)
+      } else {
+        xhrDetails.onerrror = errorHandler
+        api.xmlHttpRequest(xhrDetails)
+      }
     })()
 
     if (windowUrl === 'https://e-hentai.org/logs.php?t=karma') {
@@ -1871,7 +1916,14 @@
             fetchUnreadKarmaCount()
           }
         }
-        api.xmlHttpRequest(xhrDetails).catch(runtimeError => {})
+
+        const errorHandler = runtimeError => {}
+        if (api.version === 'v4') {
+          api.xmlHttpRequest(xhrDetails).catch(errorHandler)
+        } else {
+          xhrDetails.onerrror = errorHandler
+          api.xmlHttpRequest(xhrDetails)
+        }
       })()
     }
   }
@@ -2231,9 +2283,15 @@
       #topControlGroup, #bottomControlGroup { opacity: 0; transition-duration: 0.3s; }
       #topControlGroup:hover, #bottomControlGroup:hover { opacity: 1; }
       #topControlGroup > h1, #i2, #i4, #i5, #i6, #i7
-        { text-shadow: 0 1px 2px #000000, 1px 0 2px #000000, 0 -1px 2px #000000, -1px 0 2px #000000; }
+        { text-shadow: 0 1px 3px #000000, 1px 0 3px #000000, 0 -1px 3px #000000, -1px 0 3px #000000; }
       #topControlGroup, #bottomControlGroup, #i6 > a, #i7 > a { color: #f1f1f1 }
-      div.sn img, div.sb img { filter: drop-shadow(0px 0px 2px #FFFFFF); }`
+      div.sn img, div.sb img { filter: drop-shadow(0px 0px 3px #FFFFFF); }
+      /* add additional shading on top and bottom */
+      div.sni { display: flex; position: relative; justify-content: center; }
+      #topControlGroup, #bottomControlGroup { width: calc(95vw + 2px) ; position: absolute;
+        background: rgba(0, 0, 0, 0.6); }
+      #topControlGroup { height: 91px; top: 0; }
+      #bottomControlGroup { height: 136px; bottom: 0; }`
     const persistentStyles = `
       /* button styles */
       #toggleButtonHost { display: flex; justify-content: center; }
@@ -2627,65 +2685,65 @@
         'types of gallery lists, except for gallery toplists, by colouring the titles and timestamps of new ' +
         'galleries blue and those of expunged galleries red')
 
-      // useDownloadShortcuts
+      // useAutomatedDownloads
 
-      extendWithCheckBox(appendRow(controlPanel, 0), 'useDownloadShortcuts-featureEnabled',
-        settings.useDownloadShortcuts.featureEnabled, 'Add download shortcut buttons to automatically download ' +
+      extendWithCheckBox(appendRow(controlPanel, 0), 'useAutomatedDownloads-featureEnabled',
+        settings.useAutomatedDownloads.featureEnabled, 'Add download shortcut buttons to automatically download ' +
         'galleries directly from all types of gallery lists (a few options below)')
 
-      extendWithCheckBox(appendRow(controlPanel, 1), 'useDownloadShortcuts-torrentDownloadEnabled',
-        settings.useDownloadShortcuts.torrentDownloadEnabled, 'Enable torrent download and prioritise it over ' +
+      extendWithCheckBox(appendRow(controlPanel, 1), 'useAutomatedDownloads-torrentDownloadEnabled',
+        settings.useAutomatedDownloads.torrentDownloadEnabled, 'Enable torrent download and prioritise it over ' +
         'archive download whenever a gallery has torrents')
 
       const torrentRequirementsEnabledRow = extendWithCheckBox(appendRow(controlPanel, 2),
-        'useDownloadShortcuts-torrentRequirementsEnabled', settings.useDownloadShortcuts.torrentRequirementsEnabled,
+        'useAutomatedDownloads-torrentRequirementsEnabled', settings.useAutomatedDownloads.torrentRequirementsEnabled,
         'Only prioritise it when the gallery has an up-to-date torrent with at least')
-      extendWithTextInput(torrentRequirementsEnabledRow, 'useDownloadShortcuts-minimumSeedNumber',
-        settings.useDownloadShortcuts.minimumSeedNumber, 1, 'seeds, but ignore this and download any torrent when ' +
+      extendWithTextInput(torrentRequirementsEnabledRow, 'useAutomatedDownloads-minimumSeedNumber',
+        settings.useAutomatedDownloads.minimumSeedNumber, 1, 'seeds, but ignore this and download any torrent when ' +
         'the gallery is larger than', 'Enter an integer between 1 and 9, inclusive')
-      extendWithTextInput(torrentRequirementsEnabledRow, 'useDownloadShortcuts-ignoreRequirementsSize',
-        settings.useDownloadShortcuts.ignoreRequirementsSize, 4, 'MB, or if archive download is disabled', 'Enter an ' +
-        'integer between 0 and 9999, inclusive')
+      extendWithTextInput(torrentRequirementsEnabledRow, 'useAutomatedDownloads-ignoreRequirementsSize',
+        settings.useAutomatedDownloads.ignoreRequirementsSize, 4, 'MB, or if archive download is disabled', 'Enter ' +
+        'an integer between 0 and 9999, inclusive')
 
-      extendWithCheckBox(appendRow(controlPanel, 2), 'useDownloadShortcuts-personalisedTorrentEnabled',
-        settings.useDownloadShortcuts.personalisedTorrentEnabled, 'Download personalised torrents instead of ' +
+      extendWithCheckBox(appendRow(controlPanel, 2), 'useAutomatedDownloads-personalisedTorrentEnabled',
+        settings.useAutomatedDownloads.personalisedTorrentEnabled, 'Download personalised torrents instead of ' +
         'redistributable torrents when you are logged in to avoid occasional torrent download errors')
 
-      extendWithCheckBox(appendRow(controlPanel, 2), 'useDownloadShortcuts-apiTorrentDownloadEnabled',
-        settings.useDownloadShortcuts.apiTorrentDownloadEnabled, 'Use the more reliable GM.download() method to ' +
+      extendWithCheckBox(appendRow(controlPanel, 2), 'useAutomatedDownloads-apiTorrentDownloadEnabled',
+        settings.useAutomatedDownloads.apiTorrentDownloadEnabled, 'Use the more reliable GM.download() method to ' +
         'download torrents')
 
       const archiveDownloadEnabledRow = extendWithCheckBox(appendRow(controlPanel, 1),
-        'useDownloadShortcuts-archiveDownloadEnabled', settings.useDownloadShortcuts.archiveDownloadEnabled,
+        'useAutomatedDownloads-archiveDownloadEnabled', settings.useAutomatedDownloads.archiveDownloadEnabled,
         'Download this type of archive when torrent download is disabled above or unavailable:')
-      extendWithOptionSelector(archiveDownloadEnabledRow, 'useDownloadShortcuts-archiveDownloadType',
-        settings.useDownloadShortcuts.archiveDownloadType, options.useDownloadShortcuts.archiveDownloadType, '(the ' +
+      extendWithOptionSelector(archiveDownloadEnabledRow, 'useAutomatedDownloads-archiveDownloadType',
+        settings.useAutomatedDownloads.archiveDownloadType, options.useAutomatedDownloads.archiveDownloadType, '(the ' +
         '"auto select" archiver options in your EH gallery settings can override this archive type)')
 
       const pageDownloadEnabledRow = extendWithCheckBox(appendRow(controlPanel, 1),
-        'useDownloadShortcuts-pageDownloadEnabled', settings.useDownloadShortcuts.pageDownloadEnabled, 'Enable the ' +
+        'useAutomatedDownloads-pageDownloadEnabled', settings.useAutomatedDownloads.pageDownloadEnabled, 'Enable the ' +
         'one-click page download button, which will automatically start downloads to download all galleries on a ' +
         'gallery list page using')
-      extendWithTextInput(pageDownloadEnabledRow, 'useDownloadShortcuts-pageDownloadNumber',
-        settings.useDownloadShortcuts.pageDownloadNumber, 1, 'concurrent gallery downloads per tab', 'Enter an ' +
+      extendWithTextInput(pageDownloadEnabledRow, 'useAutomatedDownloads-pageDownloadNumber',
+        settings.useAutomatedDownloads.pageDownloadNumber, 1, 'concurrent gallery downloads per tab', 'Enter an ' +
         'integer between 1 and 9, inclusive')
 
-      extendWithCheckBox(appendRow(controlPanel, 2), 'useDownloadShortcuts-pageRangeDownloadEnabled',
-        settings.useDownloadShortcuts.pageRangeDownloadEnabled, 'Automatically start downloading the next page after ' +
-        'a page has been fully downloaded in this page download mode, so that all pages in a page range can be ' +
-        'download in one click')
+      extendWithCheckBox(appendRow(controlPanel, 2), 'useAutomatedDownloads-pageRangeDownloadEnabled',
+        settings.useAutomatedDownloads.pageRangeDownloadEnabled, 'Automatically start downloading the next page ' +
+        'after a page has been fully downloaded in this page download mode, so that all pages in a page range can be ' +
+        'downloaded in one click')
 
-      extendWithCheckBox(appendRow(controlPanel, 2), 'useDownloadShortcuts-downloadProtectionEnabled',
-        settings.useDownloadShortcuts.downloadProtectionEnabled, 'Enable download protection in this page download ' +
+      extendWithCheckBox(appendRow(controlPanel, 2), 'useAutomatedDownloads-downloadProtectionEnabled',
+        settings.useAutomatedDownloads.downloadProtectionEnabled, 'Enable download protection in this page download ' +
         'mode to prevent accidental interruptions by disabling most links and making galleries open in new tabs')
 
-      extendWithCheckBox(appendRow(controlPanel, 1), 'useDownloadShortcuts-hideThumbnailEnabled',
-        settings.useDownloadShortcuts.hideThumbnailEnabled, 'Hide each gallery\'s thumbnail cover after it ' +
+      extendWithCheckBox(appendRow(controlPanel, 1), 'useAutomatedDownloads-hideThumbnailEnabled',
+        settings.useAutomatedDownloads.hideThumbnailEnabled, 'Hide each gallery\'s thumbnail cover after it ' +
         'has been downloaded in the extended and thumbnail gallery list display modes to make its completion more ' +
         'obvious')
 
-      extendWithCheckBox(appendRow(controlPanel, 1), 'useDownloadShortcuts-downloadAlertsEnabled',
-        settings.useDownloadShortcuts.downloadAlertsEnabled, 'Show error notification popups for download attempts ' +
+      extendWithCheckBox(appendRow(controlPanel, 1), 'useAutomatedDownloads-downloadAlertsEnabled',
+        settings.useAutomatedDownloads.downloadAlertsEnabled, 'Show error notification popups for download attempts ' +
         'that failed due to problems on the site\'s end')
 
       // openGalleriesSeparately
@@ -2745,8 +2803,8 @@
         'at once where possible, at the cost of mostly breaking MPV navigation methods besides scrolling')
 
       extendWithCheckBox(appendRow(controlPanel, 1), 'fitMpvToScreen-seamlessModeEnabled',
-        settings.fitMpvToScreen.seamlessModeEnabled, 'Hide the information and buttons below each main image to make the ' +
-        'MPV seamless')
+        settings.fitMpvToScreen.seamlessModeEnabled, 'Hide the information and buttons below each main image to make ' +
+        'the MPV seamless')
 
       // hideMpvToolbar
 
@@ -3072,12 +3130,12 @@
         case 'applyTextFilters-postFilterKeywords':
           return checkTextInputList(input, settingId, 'applyTextFilters-postFilterEnabled',
             keyword => keyword.toLowerCase(), undefined)
-        case 'useDownloadShortcuts-minimumSeedNumber':
-          return checkTextInputInteger(input, settingId, 'useDownloadShortcuts-torrentDownloadEnabled', /^[1-9]$/)
-        case 'useDownloadShortcuts-ignoreRequirementsSize':
-          return checkTextInputInteger(input, settingId, 'useDownloadShortcuts-torrentDownloadEnabled', /^\d+$/)
-        case 'useDownloadShortcuts-pageDownloadNumber':
-          return checkTextInputInteger(input, settingId, 'useDownloadShortcuts-pageDownloadEnabled', /^[1-9]$/)
+        case 'useAutomatedDownloads-minimumSeedNumber':
+          return checkTextInputInteger(input, settingId, 'useAutomatedDownloads-torrentDownloadEnabled', /^[1-9]$/)
+        case 'useAutomatedDownloads-ignoreRequirementsSize':
+          return checkTextInputInteger(input, settingId, 'useAutomatedDownloads-torrentDownloadEnabled', /^\d+$/)
+        case 'useAutomatedDownloads-pageDownloadNumber':
+          return checkTextInputInteger(input, settingId, 'useAutomatedDownloads-pageDownloadEnabled', /^[1-9]$/)
       }
     }
 
@@ -3238,9 +3296,9 @@
   }
 
   /**
-   * Adds download shortcut buttons to automatically download galleries directly from all types of gallery lists.
+   * Adds buttons to automatically download galleries or whole gallery lists directly from all types of gallery lists.
    */
-  const useDownloadShortcuts = function () {
+  const useAutomatedDownloads = function () {
     /**
      * A callback function that runs on the document returned by an XHR to complete a step in a gallery download chain.
      *
@@ -3254,8 +3312,8 @@
       return
     }
 
-    const shortcuts = settings.useDownloadShortcuts
-    const errors = messages.useDownloadShortcuts.runtime
+    const shortcuts = settings.useAutomatedDownloads
+    const errors = messages.useAutomatedDownloads.runtime
     const domParser = new DOMParser()
     let inPageDownloadMode = false
     // This counter is used to ensure the "pageDownloadNumber" setting can be strictly enforced at all times.
@@ -3479,8 +3537,8 @@
         xhrDetails.headers = 'application/x-www-form-urlencoded'
         xhrDetails.data = formData
       }
-      galleryDownloadButton.xhr = api.xmlHttpRequest(xhrDetails)
-      galleryDownloadButton.xhr.catch(function (runtimeError) {
+
+      const errorHandler = function (runtimeError) {
         if (Object.keys(runtimeError).length === 0) {
           // An empty error object will be thrown when a file processing page is too slow to load. This is simply
           // ignored to let the XHR finish loading this page.
@@ -3494,7 +3552,14 @@
           // Other errors should be network errors.
           handleError(galleryDownloadButton, 'networkError')
         }
-      })
+      }
+      if (api.version === 'v4') {
+        galleryDownloadButton.xhr = api.xmlHttpRequest(xhrDetails)
+        galleryDownloadButton.xhr.catch(errorHandler)
+      } else {
+        xhrDetails.onerrror = errorHandler
+        galleryDownloadButton.xhr = api.xmlHttpRequest(xhrDetails)
+      }
     }
 
     /**
@@ -3540,8 +3605,8 @@
           testDownloadHeaders(galleryDownloadButton, downloadUrl, onsuccessFunction)
         }
       }
-      galleryDownloadButton.xhr = api.xmlHttpRequest(xhrDetails)
-      galleryDownloadButton.xhr.catch(function (runtimeError) {
+
+      const errorHandler = function (runtimeError) {
         if (runtimeError.error) {
           handleError(galleryDownloadButton, 'unknownError')
           // This function runs at the final file download stage, so it should not need to check for
@@ -3551,13 +3616,21 @@
           // Other errors should be network errors.
           handleError(galleryDownloadButton, 'networkError')
         }
-      })
+      }
+      if (api.version === 'v4') {
+        galleryDownloadButton.xhr = api.xmlHttpRequest(xhrDetails)
+        galleryDownloadButton.xhr.catch(errorHandler)
+      } else {
+        xhrDetails.onerrror = errorHandler
+        galleryDownloadButton.xhr = api.xmlHttpRequest(xhrDetails)
+      }
     }
 
     /**
      * Downloads a file, which could be an archive or a torrent, using the reliable GM.download() method.
      *
-     * This function assumes that a testing step has been completed before it to check for application errors.
+     * This function assumes that a testing step has been completed before it to check for application errors. Also,
+     * unlike any other function in this script, this function effectively only supports Tampermonkey.
      *
      * @param {HTMLDivElement} galleryDownloadButton - The gallery download button associated with this attempt.
      * @param {string} downloadUrl - The URL to which this XHR will be sent to request the file download.
@@ -3591,6 +3664,8 @@
         }
       }
       changeGalleryDownloadState(galleryDownloadButton, 'downloading')
+
+      // There is no if branch for adding xhrDetails.onerror, since this function does not support GM API v3.
       galleryDownloadButton.xhr = api.download(xhrDetails)
       galleryDownloadButton.xhr.catch(function (runtimeError) {
         switch (runtimeError.error) {
@@ -3820,7 +3895,7 @@
           if (error === 'unknownError' && typeof html !== 'undefined') {
             alertMessage += ' An error log will be automatically downloaded, which can be submitted to the author ' +
               'in a bug report.'
-            const errorLog = 'Function: useDownloadShortcuts\n\nURL:\n' + windowUrl + '\n\nHTML:\n' +
+            const errorLog = 'Function: useAutomatedDownloads\n\nURL:\n' + windowUrl + '\n\nHTML:\n' +
               window.document.documentElement.outerHTML
             downloadTextData(errorLog, `${api.info.script.name} v${api.info.script.version} - Error Log`)
           }
@@ -4261,7 +4336,7 @@
 
       // Record the URL of the next page to be downloaded using the URL of the current page as key. This should have no
       // negative effect if this key already exists. Then go to the next page after updating the userscript storage.
-      values.useDownloadShortcuts.pagesToDownload[windowUrl] = nextPage.firstElementChild.href
+      values.useAutomatedDownloads.pagesToDownload[windowUrl] = nextPage.firstElementChild.href
       await api.setValue('values', JSON.stringify(values))
       nextPage.click()
     }
@@ -4270,7 +4345,7 @@
      * Starts the page download if the current page was marked for it, and updates the userscript storage.
      */
     const continuePageDownload = async function () {
-      const pagesToDownload = values.useDownloadShortcuts.pagesToDownload
+      const pagesToDownload = values.useAutomatedDownloads.pagesToDownload
       if (!shortcuts.pageDownloadEnabled || !shortcuts.pageRangeDownloadEnabled ||
         Object.keys(pagesToDownload).length === 0) {
         return
