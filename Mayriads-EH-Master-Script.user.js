@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.0.1
+// @version         2.0.2
 // @author          Mayriad
 // @description     Adds 24+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -659,6 +659,25 @@
       // The upload list also has styles in document.head, but they are the same on both sides. There are only two
       // effective colour properties, but they only fit the light theme, so a fix is added to applyDesignFixes() for the
       // dark theme.
+    } else if (windowUrl.includes('bounty.php?bid=')) {
+      scientificDarkStyles += `
+        span.scr { color: red; }
+        span.scb { color: blue; }
+        span.scg { color: green; }
+        span.sco { color: #FF8C00; }
+        div#x { border-color: #34353b; background: #43464e; }
+        div#g th { border-bottom-color: #000000; }
+        div#h th { border-bottom-color: #000000; }`
+    } else if (windowUrl.includes('bounty.php?act=top')) {
+      scientificDarkStyles += `
+        span.scr { color: red; }
+        span.scb { color: blue; }
+        span.scg { color: green; }
+        span.sco { color: #FF8C00; }
+        div#t img { border-color: black; }
+        div#f span { color: #f1f1f1; }
+        div.d4 { border-color: #000000; }
+        div.d5 { border-color: #000000; }`
     } else if (windowUrl.includes('gallerytorrents.php')) {
       scientificDarkStyles += `
         table#ett { background: #43464e; border: 1px solid #34353b; }
@@ -721,6 +740,14 @@
       customDarkStyles += `
         #lb + div + div { border-radius: 9px; background: #4f535b !important; border-color: #000000 !important; }
         #lb + div + div th { border-bottom-color: #000000 !important; };`
+    } else if (windowUrl.includes('bounty.php?bid=')) {
+      // Fix the colour of the PM icon.
+      customDarkStyles += `
+        img.ygm { filter: brightness(100); }`
+    } else if (windowUrl.includes('bounty.php?act=top')) {
+      // Fix the page number arrow when it is not clickable.
+      customDarkStyles += `
+        div#p > span { color: #73767c; }`
     } else if (windowUrl.includes('bounty_post.php')) {
       customDarkStyles += `
         div.d4, div.d5 { border-color: #000000; }
@@ -1637,7 +1664,7 @@
         (windowUrl.includes('exhentai.org') && !settings.applyLightTheme.featureEnabled)) {
         designFixesStyles += `
           /* improve the colour of visited titles */
-          a:visited .glink, a:active .glink { color: #73767C }`
+          a:visited .glink, a:active .glink { color: #73767c }`
       } else {
         designFixesStyles += `
           /* improve the colour of visited titles */
@@ -1667,9 +1694,9 @@
           resultMessage.textContent = resultMessage.textContent.replace('this page', 'this page range')
         }
 
-        // Change the "showing * galleries" part to say "showing */* galleries", where the first number is the actual
-        // number of galleries in the current list and the second is the total number of galleries found in a search
-        // before deductions from the standard second-stage filters, the additional filters from this script, and
+        // Change the "showing * galleries" part to say "showing * out of * galleries", where the first number is the
+        // actual number of galleries in the current list and the second is the total number of galleries found in a
+        // search before deductions from the standard second-stage filters, the additional filters from this script, and
         // indexing delay. Since this feature function runs after applyAdditionalFilters(), the effects of additional
         // filters will be included and the correct count will be shown. However, the effect of indexing delay cannot be
         // accounted for, which probably mainly affects updated galleries.
@@ -1687,7 +1714,7 @@
         pony.parentNode.style.transform = 'translateY(4px)'
       }
     } else if (windowUrl.includes('stats.php')) {
-      // Fix the missing border at the top-right cornor of each graph.
+      // Fix the missing border at the top-right corner of each graph.
       for (const td of document.body.querySelectorAll('td[colspan]')) {
         // If the border is always missing above the last column and only this column for everyone, then
         // "+td.getAttribute('colspan') + 1" would be enough.
@@ -1771,6 +1798,17 @@
     } else if (windowUrl.includes('exhentai.org/tos.php')) {
       // Redirect the terms of service page in the EX upload interface, because this EX version does not exist.
       window.location.assign(windowUrl.replace('exhentai.org', 'e-hentai.org'))
+    }
+
+    if (pageType === 'gallery list' || windowUrl === 'https://e-hentai.org/bounty.php') {
+      // Fix the colour of the arrow in the page number selector when it is not clickable in the dark theme. Without
+      // this fix, this arrow would still use the colour from the light theme.
+      if ((windowUrl.includes('e-hentai.org') && settings.applyDarkTheme.featureEnabled) ||
+        (windowUrl.includes('exhentai.org') && !settings.applyLightTheme.featureEnabled)) {
+        designFixesStyles += `
+          /* use an appropriate colour for unclickable page number arrow */
+          td.ptdd, td.ptdd:hover { color: #73767c !important; }`
+      }
     }
 
     if (designFixesStyles.length > 0) {
@@ -1950,7 +1988,7 @@
       image.src = 'https://ehgt.org/g/mr.gif'
       const anchor = document.createElement('a')
       anchor.textContent = text
-      anchor.href = '#'
+      anchor.href = url
       anchor.onclick = function (anchorEvent) {
         anchorEvent.preventDefault()
         window.open(url)
@@ -2106,7 +2144,7 @@
       const anchor = document.createElement('a')
       // Unlike its sibling anchors, the square brackets are included in this anchor to change their colour as well.
       anchor.textContent = `[${text}]`
-      anchor.href = '#'
+      anchor.href = url
       anchor.style.color = guideLinkColour
       anchor.onclick = function (anchorEvent) {
         anchorEvent.preventDefault()
@@ -2883,7 +2921,7 @@
         anchor.id = id
       }
       anchor.textContent = text
-      anchor.href = '#'
+      anchor.href = url
       anchor.onclick = function (anchorEvent) {
         anchorEvent.preventDefault()
         window.open(url)
@@ -3519,9 +3557,11 @@
           const documentReceived = domParser.parseFromString(response.responseText, 'text/html')
           if (response.status === 200) {
             onloadFunction(galleryDownloadButton, documentReceived, response)
+          } else if (response.status === 404) {
+            handleError(galleryDownloadButton, 'unavailableGalleryError')
           } else {
-            alert('attemptDownloadStep() application error')
-            handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent))
+            handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent),
+              documentReceived.documentElement.outerHTML)
           }
         },
         ontimeout: function (response) {
@@ -3597,7 +3637,8 @@
           } if (response.readyState === 4) {
             // If the XHR is not aborted and reaches the "load" ready state, there must be an application error.
             const documentReceived = domParser.parseFromString(response.responseText, 'text/html')
-            handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent))
+            handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent),
+              documentReceived.documentElement.outerHTML)
           }
         },
         ontimeout: function (response) {
@@ -3644,11 +3685,11 @@
 
       const xhrDetails = {
         url: downloadUrl,
-        // Replace illegal characters in the filename with underscores. This filename step is actually required for
-        // compatibility with at least Firefox, which requires the filename to be explicitly stated here. For Chromium
-        // browsers, a dummy basename is enough and the browser will automatically decide the final filename based on
-        // the response header. The illegal characters are taken from the wikipedia page on filename.
-        name: filename.replace(/[/\\?%*:|"<>]/g, '_'),
+        // Replace illegal characters in the filename with their legal, full-width versions to better preserve the
+        // gallery title. This does not apply to Chromium browsers, though, because it seems they always use the default
+        // name from the response headers. Some of these illegal characters like "/" are automatically converted to
+        // spaces by the site in the headers, while others like ":" are not.
+        name: replaceIllegalCharacters(filename),
         saveAs: false,
         timeout: 30000,
         onload: function (response) {
@@ -3696,6 +3737,34 @@
             }
         }
       })
+    }
+
+    /**
+     * Helps downloadUsingApi() to replace illegal characters in a filename with their full-width versions.
+     *
+     * The illegal characters are taken from the wikipedia page on filename except for tilde. Tilde is allowed in
+     * filenames, but needs to be replaced because it can stop GM.download() from download files on Chromium browsers.
+     *
+     * @param {string} filename - The filename string to be checked and potentially formatted.
+     */
+    const replaceIllegalCharacters = function (filename) {
+      const fullWidthReplacements = {
+        '/': '／',
+        '\\\\': '＼',
+        '\\?': '？',
+        '%': '％',
+        '\\*': '＊',
+        ':': '：',
+        '\\|': '｜',
+        '"': '＂',
+        '<': '＜',
+        '>': '＞',
+        '~': '～'
+      }
+      for (const character of Object.keys(fullWidthReplacements)) {
+        filename = filename.replace(new RegExp(character, 'g'), fullWidthReplacements[character])
+      }
+      return filename
     }
 
     /**
@@ -3828,19 +3897,23 @@
      */
     const checkErrorMessage = function (message) {
       message = message.toLowerCase()
-      if (message.includes('the torrent file could not be found')) {
-        return 'unavailableTorrentError'
-      } else if (message.includes('you have clocked too many downloaded bytes on this gallery')) {
-        return 'downloadedBytesError'
-      } else if (message.includes('expired or invalid session')) {
-        return 'expiredSessionError'
-      } else if (message.includes('service unavailable')) {
+      if (message.includes('service unavailable')) {
         // When the site returns this 503 error, the statusText seems empty.
         return 'serviceUnavailableError'
       } else if (message.includes('backend fetch failed')) {
         return 'backendFetchError'
       } else if (message.includes('the archiver assigned to this archive is temporarily unavailable')) {
         return 'unavailableArchiverError'
+      } else if (message.includes('the torrent file could not be found')) {
+        return 'unavailableTorrentError'
+      } else if (message.includes('this gallery is currently unavailable')) {
+        // This probably only happens when the torrent list of a removed gallery is accessed. This if branch should
+        // never run, because the status code will be 404 in this case and the XHR will directly call handleError().
+        return 'unavailableGalleryError'
+      } else if (message.includes('you have clocked too many downloaded bytes on this gallery')) {
+        return 'downloadedBytesError'
+      } else if (message.includes('expired or invalid session')) {
+        return 'expiredSessionError'
       } else {
         return 'unknownError'
       }
@@ -3851,7 +3924,7 @@
      *
      * @param {HTMLDivElement} galleryDownloadButton - The gallery download button associated with the error.
      * @param {string} error - The type of the error.
-     * @param {string} [html] - The HTML of the entire document element of the page that gave the error.
+     * @param {string} [html] - The outer HTML of the entire document element of the page that gave the error.
      */
     const handleError = function (galleryDownloadButton, error, html) {
       let alertMessage = errors[error]
@@ -3881,7 +3954,6 @@
         case 'gmDownloadNotEnabledError':
         case 'gmDownloadNotSupportedError':
         case 'crossOriginNotAllowedError':
-        case 'unknownError':
           changeGalleryDownloadState(galleryDownloadButton, 'failed', alertMessage)
           // Stop the page download mode if it is active, because otherwise most downloads would just fail.
           if (inPageDownloadMode) {
@@ -3891,12 +3963,17 @@
               endDownloadProtection()
             }
           }
-          // A log file should be automatically generated and downloaded when an unknown error is encountered.
-          if (error === 'unknownError' && typeof html !== 'undefined') {
-            alertMessage += ' An error log will be automatically downloaded, which can be submitted to the author ' +
-              'in a bug report.'
-            const errorLog = 'Function: useAutomatedDownloads\n\nURL:\n' + windowUrl + '\n\nHTML:\n' +
-              window.document.documentElement.outerHTML
+          alert(alertMessage)
+          break
+        // Unknown errors are always shown but do not stop the page download mode. The notification popup will however
+        // pause the start of new gallery downloads in this mode until it is clicked.
+        case 'unknownError':
+          changeGalleryDownloadState(galleryDownloadButton, 'failed', alertMessage)
+          // A log file can be automatically generated and downloaded when an unknown error is encountered.
+          if (typeof html !== 'undefined') {
+            alertMessage += ' An error log will be automatically downloaded, which can be submitted to the author in ' +
+              'a bug report.'
+            const errorLog = `Function:\nuseAutomatedDownloads\n\nURL:\n${windowUrl}\n\nHTML:\n${html}`
             downloadTextData(errorLog, `${api.info.script.name} v${api.info.script.version} - Error Log`)
           }
           alert(alertMessage)
@@ -3917,6 +3994,13 @@
      * @param {Document} documentReceived - The parsed document returned by the last XHR.
      */
     const selectTargetTorrent = function (galleryDownloadButton, documentReceived) {
+      // Check whether the page is actually a torrent list page. This check should be unnecessary, which is why an
+      // unknown error will be thrown.
+      if (documentReceived.getElementById('torrentinfo') === null) {
+        handleError(galleryDownloadButton, 'unknownError', documentReceived.documentElement.outerHTML)
+        return
+      }
+
       let torrents = Array.from(documentReceived.getElementsByTagName('table'), analyseTorrentTable)
       if (shortcuts.torrentRequirementsEnabled && shortcuts.archiveDownloadEnabled) {
         // When the seed requirement is enabled and the archive download is also enabled as a fallback option, firstly
@@ -4025,8 +4109,10 @@
       } else {
         const archiveDownloadButton = xpathSelector(documentReceived, './/a[text() = "Archive Download"]')
         if (archiveDownloadButton === null) {
-          // There is an error if the archive download link is not found.
-          handleError(galleryDownloadButton, 'unavailableGalleryError')
+          // There is an error if the archive download link is not found. This should not happen, but is checked just in
+          // case.
+          handleError(galleryDownloadButton, 'unknownError', documentReceived.documentElement.outerHTML)
+          return
         }
         const archiveSelectionUrl = archiveDownloadButton.getAttribute('onclick').match(/popUp\('(.+?)',/)[1]
         if (shortcuts.archiveDownloadType.includes('H@H')) {
