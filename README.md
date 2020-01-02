@@ -92,7 +92,7 @@ If you are going to use the automated gallery downloads feature, you may have to
 
 ## Usage
 
-When you first activate this script, you should notice that there is a button that says "Configure Mayriad's Script" on all gallery lists. Clicking this button will open the GUI control panel and you can then enable the features and options you plan to use. You can read a bit more about the features in [the wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Feature-descriptions). Some recommend features and options are enabled by default, so you can see their effects immediately after this script is activated.
+When you first activate this script, you should notice that there is a button that says "Configure Master Script" on all gallery lists. Clicking this button will open the GUI control panel and you can then enable the features and options you plan to use. You can read a bit more about the features in [the wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Feature-descriptions). Some recommend features and options are enabled by default, so you can see their effects immediately after this script is activated.
 
 This control panel is built into all types of gallery lists on EH, and this should be the only thing you need to control this script. Your settings should persist between updates, so you should not need to touch the code at all. The control panel has explanations for all features and options, and notifications will tell you what to do, so in general this script should be very straightforward to use. You may want to read a bit more about the relatively complicated automated gallery downloads feature in [the wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki/Automated-gallery-downloads), though.
 
