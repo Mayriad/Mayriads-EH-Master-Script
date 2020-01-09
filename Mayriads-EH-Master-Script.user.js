@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.0.2
+// @version         2.0.3
 // @author          Mayriad
 // @description     Adds 24+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -2392,16 +2392,26 @@
 
     const shortcuts = settings.fitMpvToScreen
     let fitMpvStyles
+    // Sometimes the image information below each image can be longer than the image in the MPS mode, and there is not a
+    // way to always crop and fit it accurately between the buttons using CSS. Therefore, to show the text, the five
+    // buttons below each image will be hidden by default and revealed when the pointer is hovering over the whole bar.
+    // This way the buttons are always available and the full information should be displayed most of the time;
+    // otherwise, when the text is too long, it will be truncated and suffixed with ellipsis at the end.
     if (shortcuts.mpsModeEnabled) {
       fitMpvStyles = `
         /* stretch to fill screen */
         div.mi0, img[id ^= "imgsrc_"] { height: calc(100vh - 2px) !important; width: auto !important; }
         /* maintain aspect ratio and fit to screen */
-        img[id ^= "imgsrc_"] { object-fit: contain; }
+        img[id ^= "imgsrc_"] { object-fit: contain; max-width: 100%; }
         /* remove default width limit and reposition the text and buttons below the image */
         div.mi0 { display: inline-table; min-width: 0; max-width: 100% !important; }
-        div.mi1 { padding: 5px 0 3px 0; }
-        div.mi4 { display: none; }`
+        div.mi1 { display: flex; justify-content: center; height: 20px; padding: 5px 0 3px 0; }
+        div.mi2, div.mi3 { position: absolute; float: unset; opacity: 0; transition-duration: 0.3s; }
+        div.mi1:hover > div.mi2, div.mi1:hover > div.mi3 { opacity: 1; }
+        div.mi2 { left: 0; }
+        div.mi3 { right: 0; }
+        div.mi4 { max-width: calc(100% - 10px); top: unset; left: unset; white-space: nowrap; overflow: hidden;
+          text-overflow: ellipsis; }`
     } else {
       fitMpvStyles = `
         /* stretch to fill screen */
@@ -3759,7 +3769,8 @@
         '"': '＂',
         '<': '＜',
         '>': '＞',
-        '~': '～'
+        '~': '～',
+        '\\s': ' '
       }
       for (const character of Object.keys(fullWidthReplacements)) {
         filename = filename.replace(new RegExp(character, 'g'), fullWidthReplacements[character])
@@ -4004,9 +4015,12 @@
       let torrents = Array.from(documentReceived.getElementsByTagName('table'), analyseTorrentTable)
       if (shortcuts.torrentRequirementsEnabled && shortcuts.archiveDownloadEnabled) {
         // When the seed requirement is enabled and the archive download is also enabled as a fallback option, firstly
-        // sort the up-to-date, seeded torrents by size in descending order.
+        // obtain the up-to-date, seeded torrents.
         torrents = torrents.filter(torrent => torrent.timestamp >= galleryDownloadButton.timestamp)
-          .filter(torrent => torrent.seeds > 0).sort((a, b) => b.size - a.size)
+          .filter(torrent => torrent.seeds > 0)
+        // Then, sort them by size in descending order. When two torrents have the same size, a multi-criteria sort is
+        // done to prioritise the one with more seeds.
+        torrents = torrents.sort((a, b) => b.size - a.size === 0 ? b.seeds - a.seeds : b.size - a.size)
         if (torrents.length > 0 && torrents[0].size > shortcuts.ignoreRequirementsSize) {
           // Download the largest torrent right away if the gallery is too large for archive download judging by this
           // largest torrent.
