@@ -28,13 +28,13 @@
 // @grant           GM_getValue
 // @grant           GM_xmlhttpRequest
 // @grant           GM_info
-// @copyright       2015-2019, Mayriad (https://github.com/Mayriad)
+// @copyright       2015-2020, Mayriad (https://github.com/Mayriad)
 // @license         GPL-3.0-or-later; https://www.gnu.org/licenses/gpl-3.0-standalone.html
 // ==/UserScript==
 
 /**
  * @author Mayriad
- * @copyright 2015-2019 Mayriad
+ * @copyright 2015-2020 Mayriad
  * @license GNU General Public License v3.0 or later
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -2392,26 +2392,16 @@
 
     const shortcuts = settings.fitMpvToScreen
     let fitMpvStyles
-    // Sometimes the image information below each image can be longer than the image in the MPS mode, and there is not a
-    // way to always crop and fit it accurately between the buttons using CSS. Therefore, to show the text, the five
-    // buttons below each image will be hidden by default and revealed when the pointer is hovering over the whole bar.
-    // This way the buttons are always available and the full information should be displayed most of the time;
-    // otherwise, when the text is too long, it will be truncated and suffixed with ellipsis at the end.
     if (shortcuts.mpsModeEnabled) {
       fitMpvStyles = `
         /* stretch to fill screen */
         div.mi0, img[id ^= "imgsrc_"] { height: calc(100vh - 2px) !important; width: auto !important; }
         /* maintain aspect ratio and fit to screen */
-        img[id ^= "imgsrc_"] { object-fit: contain; max-width: 100%; }
+        img[id ^= "imgsrc_"] { object-fit: contain; }
         /* remove default width limit and reposition the text and buttons below the image */
         div.mi0 { display: inline-table; min-width: 0; max-width: 100% !important; }
-        div.mi1 { display: flex; justify-content: center; height: 20px; padding: 5px 0 3px 0; }
-        div.mi2, div.mi3 { position: absolute; float: unset; opacity: 0; transition-duration: 0.3s; }
-        div.mi1:hover > div.mi2, div.mi1:hover > div.mi3 { opacity: 1; }
-        div.mi2 { left: 0; }
-        div.mi3 { right: 0; }
-        div.mi4 { max-width: calc(100% - 10px); top: unset; left: unset; white-space: nowrap; overflow: hidden;
-          text-overflow: ellipsis; }`
+        div.mi1 { padding: 5px 0 3px 0; }
+        div.mi4 { display: none; }`
     } else {
       fitMpvStyles = `
         /* stretch to fill screen */
