@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.0.3
+// @version         2.0.4
 // @author          Mayriad
 // @description     Adds 24+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -185,7 +185,8 @@
       downloadAlertsEnabled: true
     },
     openGalleriesSeparately: {
-      featureEnabled: true
+      featureEnabled: true,
+      directMpvEnabled: false
     },
     addJumpButtons: {
       featureEnabled: true,
@@ -1419,7 +1420,7 @@
     }
 
     // Spam definition is stored here for now.
-    const spamDefinition = ['zeo.kr/chat', 'ssumro.xyz', 'sex4doll.com']
+    const spamDefinition = ['zeo.kr', 'ssumro.xyz', 'sex4doll.com']
     const shortcuts = settings.applyTextFilters
 
     /**
@@ -1681,6 +1682,15 @@
       if (noResultsMessage !== null && displayMode !== 'extended') {
         // The header row is deleted to solve all problems at once, since it is not needed when the result is empty.
         noResultsMessage.parentNode.parentNode.removeChild(noResultsMessage.parentNode.previousElementSibling)
+      }
+
+      // Fix the lack of space at the beginning of the popular list on EX to accommodate the display mode selector.
+      if (windowUrl === 'https://exhentai.org/popular') {
+        // The heading on EH is recreated here to make space while maintaining consistency.
+        const heading = document.createElement('h1')
+        heading.className = 'ih'
+        heading.textContent = 'Currently Popular Recent Galleries'
+        document.getElementById('toppane').appendChild(heading)
       }
 
       // Fix the wording of the search result message. The popular list and gallery toplists are excluded since they do
@@ -2301,8 +2311,8 @@
 
     let fitImageStyles = `
       /* stretch to fill screen */
-      #i1 { height: 98vh; width: 95vw !important; max-width: 95vw !important; padding: 0; }
-      #i3, #i3 > a > img { height: 98vh !important; width: 100% !important; margin: 0; }
+      #i1 { height: calc(100vh - 10px); width: 95vw !important; max-width: 95vw !important; padding: 0; }
+      #i3, #i3 > a > img { height: 100% !important; width: 100% !important; margin: 0; }
       /* maintain aspect ratio and fit to screen */
       #i3 > a > img { object-fit: contain; max-width: initial !important; max-height: initial !important; }
       /* reposition elements */
@@ -2329,8 +2339,10 @@
       #topControlGroup, #bottomControlGroup { width: calc(95vw + 2px) ; position: absolute;
         background: rgba(0, 0, 0, 0.6); }
       #topControlGroup { height: 91px; top: 0; }
-      #bottomControlGroup { height: 136px; bottom: 0; }`
+      #bottomControlGroup { height: 136px; bottom: -1px; }
+      #toggleButtonHost { position: absolute; }`
     const persistentStyles = `
+      div.sni { margin: 2px auto; }
       /* button styles */
       #toggleButtonHost { display: flex; justify-content: center; }
       #toggleFitButton { width: 155px; min-height: 25px; height: 25px; position: fixed; bottom: 2vh;
@@ -2392,16 +2404,26 @@
 
     const shortcuts = settings.fitMpvToScreen
     let fitMpvStyles
+    // Sometimes the image information below each image can be longer than the image in the MPS mode, and there is not a
+    // way to always crop and fit it accurately between the buttons using CSS. Therefore, to show the text, the five
+    // buttons below each image will be hidden by default and revealed when the pointer is hovering over the whole bar.
+    // This way the buttons are always available and the full information should be displayed most of the time;
+    // otherwise, when the text is too long, it will be truncated and suffixed with ellipsis at the end.
     if (shortcuts.mpsModeEnabled) {
       fitMpvStyles = `
         /* stretch to fill screen */
         div.mi0, img[id ^= "imgsrc_"] { height: calc(100vh - 2px) !important; width: auto !important; }
         /* maintain aspect ratio and fit to screen */
-        img[id ^= "imgsrc_"] { object-fit: contain; }
+        img[id ^= "imgsrc_"] { object-fit: contain; max-width: 100%; }
         /* remove default width limit and reposition the text and buttons below the image */
         div.mi0 { display: inline-table; min-width: 0; max-width: 100% !important; }
-        div.mi1 { padding: 5px 0 3px 0; }
-        div.mi4 { display: none; }`
+        div.mi1 { display: flex; justify-content: center; height: 20px; padding: 5px 0 3px 0; }
+        div.mi2, div.mi3 { position: absolute; float: unset; opacity: 0; transition-duration: 0.3s; }
+        div.mi1:hover > div.mi2, div.mi1:hover > div.mi3 { opacity: 1; }
+        div.mi2 { left: 0; }
+        div.mi3 { right: 0; }
+        div.mi4 { max-width: calc(100% - 10px); top: unset; left: unset; white-space: nowrap; overflow: hidden;
+          text-overflow: ellipsis; }`
     } else {
       fitMpvStyles = `
         /* stretch to fill screen */
@@ -2534,7 +2556,7 @@
 
       // The spaces around "•" below are em quad characters.
       const scriptInfoRow = extendWithAnchor(appendRow(controlPanel, 0), undefined, `${api.info.script.name} ` +
-        `v${api.info.script.version}`, 'https://e-hentai.org', true)
+        `v${api.info.script.version}`, 'https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
       extendWithAnchor(scriptInfoRow, undefined, 'GitHub Repository',
         'https://github.com/Mayriad/Mayriads-EH-Master-Script', true)
@@ -2577,7 +2599,7 @@
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'improveNavigationBar-featureEnabled',
         settings.improveNavigationBar.featureEnabled, 'Improve the top navigation bar in the gallery system by ' +
-        'adding a few additional buttons')
+        'adding a few additional buttons (one option below)')
 
       extendWithCheckBox(appendRow(controlPanel, 1), 'improveNavigationBar-unreadCountsEnabled',
         settings.improveNavigationBar.unreadCountsEnabled, 'Show the numbers of unread forum PMs and unread +K ' +
@@ -2625,7 +2647,7 @@
 
       extendWithCheckBox(appendRow(controlPanel, 1), 'applyTextFilters-spamFilterEnabled',
         settings.applyTextFilters.spamFilterEnabled, 'Hide spam comments, posts and threads in galleries and ' +
-        'forums using the built-in spam definition (currently not needed)')
+        'forums using the built-in spam definition (usually not needed)')
 
       // addJumpButtons
 
@@ -2788,7 +2810,11 @@
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'openGalleriesSeparately-featureEnabled',
         settings.openGalleriesSeparately.featureEnabled, 'Open galleries in new tab by default from all types of ' +
-        'gallery lists')
+        'gallery lists (one option below)')
+
+      extendWithCheckBox(appendRow(controlPanel, 1), 'openGalleriesSeparately-directMpvEnabled',
+        settings.openGalleriesSeparately.directMpvEnabled, 'Open the MPV directly when you click galleries in ' +
+        'gallery lists (requires the MPV perk)')
 
       // Gallery view features -----------------------------------------------------------------------------------------
 
@@ -2805,7 +2831,7 @@
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'showAlternativeRating-featureEnabled',
         settings.showAlternativeRating.featureEnabled, 'Show a more objective alternative rating system inside ' +
-        'galleries, which is based on the ratio of favorited/rated')
+        'galleries, which is based on the ratio of times favorited/rated (one option below)')
       extendWithCheckBox(appendRow(controlPanel, 1), 'showAlternativeRating-hideStarsEnabled',
         settings.showAlternativeRating.hideStarsEnabled, 'Hide the star rating section inside galleries completely ' +
         'and hence disable the ability to give star ratings')
@@ -2831,7 +2857,7 @@
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'fitMpvToScreen-featureEnabled',
         settings.fitMpvToScreen.featureEnabled, 'Fit images to screen instead of width in the MPV and add a button ' +
-        'to temporarily toggle the fit (a few options below)')
+        'to temporarily toggle the fit (requires the MPV perk, a few options below)')
 
       extendWithCheckBox(appendRow(controlPanel, 1), 'fitMpvToScreen-makeDefaultEnabled',
         settings.fitMpvToScreen.makeDefaultEnabled, 'Fit images to screen instead of width by default')
@@ -2848,18 +2874,19 @@
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'hideMpvToolbar-featureEnabled',
         settings.hideMpvToolbar.featureEnabled, 'Hide the vertical toolbar in the MPV, which can rest on top of ' +
-        'images, and only reveal it on hover')
+        'images, and only reveal it on hover (requires the MPV perk)')
 
       // removeMpvTooltips
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'removeMpvTooltips-featureEnabled',
-        settings.removeMpvTooltips.featureEnabled, 'Remove the filename tooltips on the main images in the MPV')
+        settings.removeMpvTooltips.featureEnabled, 'Remove the filename tooltips on the main images in the MPV ' +
+        '(requires the MPV perk)')
 
       // relocateMpvThumbnails
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'relocateMpvThumbnails-featureEnabled',
         settings.relocateMpvThumbnails.featureEnabled, 'Relocate the thumbnail pane and its scroll bar to the right ' +
-        'side in the MPV, which should be more natural to use')
+        'side in the MPV, which should be more natural to use (requires the MPV perk)')
 
       // Upload management features ------------------------------------------------------------------------------------
 
@@ -4002,7 +4029,10 @@
         return
       }
 
+      // Obtain the status of each torrent in the torrent list, but only include the ones that have active download
+      // links i.e., exclude expunged but seeded torrents still staying in the list.
       let torrents = Array.from(documentReceived.getElementsByTagName('table'), analyseTorrentTable)
+        .filter(torrent => typeof torrent !== 'undefined')
       if (shortcuts.torrentRequirementsEnabled && shortcuts.archiveDownloadEnabled) {
         // When the seed requirement is enabled and the archive download is also enabled as a fallback option, firstly
         // obtain the up-to-date, seeded torrents.
@@ -4044,11 +4074,16 @@
     /**
      * Helps selectTargetTorrent() to extract data from a torrent information table in a torrent list page.
      *
-     * @param {HTMLTableElement} table - A table containing the information on one torrent.
+     * @param {HTMLTableElement} table - A table element that shows the status of a torrent.
+     * @returns {Object} An object literal containing the torrent data, or undefined if the torrent has been expunged.
      */
     const analyseTorrentTable = function (table) {
       const torrent = table.getElementsByTagName('a')[0]
-      if (typeof torrent !== 'undefined') {
+      if (typeof torrent === 'undefined') {
+        // If an anchor cannot be found within a torrent information table, it means this torrent has been expunged and
+        // its download link is unavailable. It should be removed from the torrent list when it becomes unseeded.
+        // undefined will be returned and this torrent will need to be screen out based on this.
+      } else {
         // Convert GB and KB to MB.
         const sizeAndUnit = table.textContent.match(/Size:\s*([0-9.]+)\s*(KB|MB|GB)/)
         let size = +sizeAndUnit[1]
@@ -4526,6 +4561,9 @@
       galleryLink.onclick = function (anchorEvent) {
         anchorEvent.preventDefault()
         window.open(galleryLink.href)
+      }
+      if (settings.openGalleriesSeparately.directMpvEnabled) {
+        galleryLink.href = galleryLink.href.replace(/\/g\//, '/mpv/')
       }
     }
   }
