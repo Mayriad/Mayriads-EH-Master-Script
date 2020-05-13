@@ -59,6 +59,7 @@ This is just short list to show its features. A longer list with explanations is
 **Script features:**
 
 - GUI control panel (always on)
+- LANraragi metadata plugin
 
 [⇧ Back to table of contents](#table-of-contents)
 
