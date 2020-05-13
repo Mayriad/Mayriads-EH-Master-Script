@@ -4,7 +4,7 @@
 
 [Userscript Download](https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script) | [Userscript Wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki) | [Discussion Thread](https://forums.e-hentai.org/index.php?showtopic=233955)
 
-Adds 24+ features to E-Hentai.
+Adds 25+ features to E-Hentai.
 
 ## Table of contents
 
