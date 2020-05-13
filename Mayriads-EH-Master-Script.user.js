@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.0.5
+// @version         2.1.0
 // @author          Mayriad
-// @description     Adds 24+ features to E-Hentai
+// @description     Adds 25+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
 // @updateURL       https://openuserjs.org/meta/Mayriad/Mayriads_EH_Master_Script.meta.js
 // @downloadURL     https://openuserjs.org/install/Mayriad/Mayriads_EH_Master_Script.user.js
@@ -177,6 +177,7 @@
       apiTorrentDownloadEnabled: true,
       archiveDownloadEnabled: true,
       archiveDownloadType: 'original archive',
+      appendIdentifiersEnabled: false,
       pageDownloadEnabled: true,
       pageDownloadNumber: 3,
       pageRangeDownloadEnabled: true,
@@ -205,6 +206,7 @@
     script: {
       version: api.info.script.version,
       filterButtonEnabled: false,
+      firefoxCompatibilityEnabled: false,
       buttonTooltipEnabled: true
     }
   }
@@ -330,9 +332,16 @@
         // Failed download errors:
         unavailableGalleryError: 'A download failed, because the gallery is removed or not available.',
         downloadedBytesError: 'An archive download failed, because you have clocked too many downloaded bytes on ' +
-          'this gallery. You can try again after a few days or try torrent download instead.',
+          'this archive link and it is no longer usable. You can wait for it to expire after a few days and then buy ' +
+          'the archive again, or manually cancel the current link in the archive selection popup and buy the archive ' +
+          'again immediately.',
         expiredSessionError: 'An archive download failed, because you purchased this archive a week ago and the ' +
           'expiry of that session stopped the current download. Please try again after one day.',
+        // Temporary ban errors:
+        heavyLoadError: 'A download is stopped, because you have been warned by the site for loading too many pages ' +
+          'and/or images too quickly. Please slow down and wait for a while before continuing with the download.',
+        temporaryBanError: 'A download failed, because you have been temporarily banned from EH for loading too many' +
+          'pages and/or images too quickly. Please wait until the ban is lifted.',
         // Setup errors:
         notLoggedInError: 'An archive/H@H download failed, because you are not logged in. Please log in first ' +
           'before attempting an automated archive/H@H download.',
@@ -485,11 +494,16 @@
    * Runs feature functions at the "loading" ready state, which belong to feature function group 1.
    */
   const runFeaturesAtLoading = function () {
-    // Group 1: functions that can run before DOM elements are loaded.
-    settings.applyDarkTheme.featureEnabled && applyDarkTheme()
-    settings.applyLightTheme.featureEnabled && applyLightTheme()
-    settings.relocateMpvThumbnails.featureEnabled && relocateMpvThumbnails()
-    settings.hideMpvToolbar.featureEnabled && hideMpvToolbar()
+    // Function that are supposed to run at this ready state can often fail to run on Firefox. If the Firefox
+    // compatibility mode is enabled, then they will be loaded at the "interactive" ready state to ensure they will
+    // always be able to run, at the cost of causing noticeable visual changes when they are loaded.
+    if (!settings.script.firefoxCompatibilityEnabled) {
+      // Group 1: functions that can run before DOM elements are loaded.
+      settings.applyDarkTheme.featureEnabled && applyDarkTheme()
+      settings.applyLightTheme.featureEnabled && applyLightTheme()
+      settings.relocateMpvThumbnails.featureEnabled && relocateMpvThumbnails()
+      settings.hideMpvToolbar.featureEnabled && hideMpvToolbar()
+    }
   }
 
   /**
@@ -710,6 +724,9 @@
     } else if (windowUrl.includes('gallerytorrents.php')) {
       customDarkStyles += `
         #torrentinfo > div + div { border-top-color: #000000 !important; }`
+    } else if (windowUrl.includes('archiver.php')) {
+      scientificDarkStyles += `
+        #hathdl_form + table td { border-color: #f1f1f1 !important; }`
     } else if (windowUrl.includes('home.php')) {
       customDarkStyles += `
         div.homebox { border-color: #000000; }
@@ -1023,7 +1040,7 @@
    * This function is simple enough to be added at the "loading" ready state to avoid visible transitions.
    */
   const relocateMpvThumbnails = function () {
-    if (!/e.hentai\.org\/mpv\/\d+/.test(windowUrl)) {
+    if (!/e(?:-|x)hentai\.org\/mpv\/\d+/.test(windowUrl)) {
       return
     }
 
@@ -1039,7 +1056,7 @@
    * Hides the vertical toolbar in the MPV, which can rest on top of images, and only reveals it on hover.
    */
   const hideMpvToolbar = function () {
-    if (!/e.hentai\.org\/mpv\/\d+/.test(windowUrl)) {
+    if (!/e(?:-|x)hentai\.org\/mpv\/\d+/.test(windowUrl)) {
       return
     }
 
@@ -1054,6 +1071,17 @@
    * Runs feature functions at the "interactive" ready state, which belong to feature function group 2 to 6.
    */
   const runFeaturesAtInteractive = function () {
+    // If the Firefox compatibility mode is enabled, then the features run at the "loading" ready state by default will
+    // be loaded here instead to ensure they will always be able to run on Firefox, at the cost of causing noticeable
+    // visual changes when they are loaded.
+    if (settings.script.firefoxCompatibilityEnabled) {
+      // Group 1: functions that can run before DOM elements are loaded.
+      settings.applyDarkTheme.featureEnabled && applyDarkTheme()
+      settings.applyLightTheme.featureEnabled && applyLightTheme()
+      settings.relocateMpvThumbnails.featureEnabled && relocateMpvThumbnails()
+      settings.hideMpvToolbar.featureEnabled && hideMpvToolbar()
+    }
+
     initialiseAtInteractive()
 
     // Group 2: functions that need to happen very quickly.
@@ -1110,15 +1138,15 @@
       dmsDiv.setAttribute('style', 'position: absolute; top: 29px')
       const pageTableTop = document.getElementsByClassName('ptt')[0]
       pageTableTop.parentNode.insertBefore(dmsDiv, pageTableTop)
-    } else if (/e.hentai\.org\/g\/\d+/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/([0-9a-z]+)/.test(windowUrl)) {
       if (xpathSelector(document, './/a[text() = "Get Me Outta Here"]') !== null) {
         pageType = 'content warning'
       } else {
         pageType = 'gallery view'
       }
-    } else if (/e.hentai\.org\/mpv\/\d+/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/([0-9a-z]+)/.test(windowUrl)) {
       pageType = 'MPV view'
-    } else if (/e.hentai\.org\/s\/[0-9a-z]+/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/s\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'image view'
     } else if (/upload\.e-hentai\.org|exhentai\.org\/upload/.test(windowUrl)) {
       pageType = 'upload management'
@@ -1858,37 +1886,36 @@
       }
     }
 
-    // Add a button that shows the number of unread forum PMs and links to the inbox. If the button is clicked when the
-    // user is not logged in, the error page displayed will allow the user to log in. The en dash below should be as
-    // wide as a digit, so it is used to prevent the width of the navigation bar from changing after this element is
-    // updated by the XHR.
-    addNavigationButton(navigationBar, 'Unread PM: –', 'https://forums.e-hentai.org/index.php?act=Msg&CODE=01')
+    // Start to add the unread count buttons. The en dash in these buttons are as wide as a digit, so it is used to
+    // prevent the width of the navigation bar from changing after these elements are updated by XHRs.
+    if (!settings.improveNavigationBar.unreadCountsEnabled) {
+      return
+    }
+
+    const domParser = new DOMParser()
 
     /**
-     * Fetches the EH forum front page to read the "* New Messages" part and update the "unread PM" button.
+     * Uses GET or POST to request a page via XHR, and runs the supplied function on load.
+     *
+     * @param {string} targetUrl - The URL to which this XHR will be sent.
+     * @param {Function} onloadFunction - The function that will run on the successful response from this XHR.
      */
-    ;(function fetchUnreadPmCount () {
+    function fetchUnreadCount (targetUrl, onloadFunction) {
       // The XHR will not retry on network or HTML error, because the error may persist for a while and the user
       // cannot cancel this endless retry process.
       const xhrDetails = {
         method: 'GET',
         synchronous: false,
         timeout: 60000,
-        url: 'https://forums.e-hentai.org/',
+        url: targetUrl,
         onload: function (response) {
           if (response.status === 200) {
-            const documentReceived = (new DOMParser()).parseFromString(response.responseText, 'text/html')
-            const unreadPmCount = documentReceived.querySelector('#userlinks a[href *= "act=Msg"]')
-            // Check whether this inbox link exists and hence whether the user is logged in; then update the link if
-            // the user is logged in.
-            if (unreadPmCount !== null) {
-              xpathSelector(document, './/a[text() = "Unread PM: –"]').textContent = 'Unread PM: ' +
-                unreadPmCount.textContent.match(/\d+/)[0]
-            }
+            const documentReceived = domParser.parseFromString(response.responseText, 'text/html')
+            onloadFunction(documentReceived)
           }
         },
         ontimeout: function (response) {
-          fetchUnreadPmCount()
+          fetchUnreadCount()
         }
       }
 
@@ -1899,14 +1926,100 @@
         xhrDetails.onerrror = errorHandler
         api.xmlHttpRequest(xhrDetails)
       }
-    })()
+    }
 
+    /**
+     * Fetches the EH forum front page to read the "* New Messages" part and update the unread PM button.
+     *
+     * @param {Document} documentReceived - The parsed document returned by the caller XHR.
+     */
+    function updateUnreadPmCount (documentReceived) {
+      const unreadPmCount = documentReceived.querySelector('#userlinks a[href *= "act=Msg"]')
+      // Check whether this inbox link exists and hence whether the user is logged in; then update the link if
+      // the user is logged in.
+      if (unreadPmCount !== null) {
+        xpathSelector(document, './/a[text() = "PM: –"]').textContent = 'PM: ' +
+          unreadPmCount.textContent.match(/\d+/)[0]
+      }
+    }
+
+    /**
+     * Fetches the MM inbox page to check for unread mails and update the unread MM button.
+     *
+     * @param {Document} documentReceived - The parsed document returned by the caller XHR.
+     */
+    function updateUnreadMmCount (documentReceived) {
+      const unreadCountButton = xpathSelector(document, './/a[text() = "MM: –"]')
+
+      if (documentReceived.getElementById('mmail_nnm') !== null) {
+        unreadCountButton.textContent = 'MM: 0'
+      } else {
+        // Only the rows that represent actual MMs will have an onclick property.
+        unreadCountButton.textContent = 'MM: ' + documentReceived.querySelectorAll('#mmail_list tr[onclick]').length
+      }
+    }
+
+    /**
+     * Fetches the karma log to check timestamps for new karma messages and update the unread +K button.
+     *
+     * @param {Document} documentReceived - The parsed document returned by the caller XHR.
+     */
+    function updateUnreadKarmaCount (documentReceived) {
+      const unreadCountButton = xpathSelector(document, './/a[text() = "+K: –"]')
+      const karmaTable = documentReceived.getElementsByTagName('table')[0]
+
+      // How this page will look when the user does not have any karma message is not known, so the empty karma
+      // page scenario here is tested in two ways. The value for last karma read is not recorded so the next two
+      // branches below will work as intended.
+      if (typeof karmaTable === 'undefined' ||
+        documentReceived.querySelector('#lb + div').textContent.match(/Total Karma: (\d+)/)[1] === '0') {
+        unreadCountButton.textContent = '+K: 0'
+        return
+      }
+
+      // When this unread +K check is done for the first time, assume the user has read the latest karma message
+      // and record this timestamp as read.
+      if (values.improveNavigationBar.lastKarmaRead === '') {
+        values.improveNavigationBar.lastKarmaRead = karmaTable.rows[1].firstElementChild.textContent
+        api.setValue('values', JSON.stringify(values))
+        unreadCountButton.textContent = '+K: 0'
+      } else {
+        let unreadKarmaCount = 0
+        for (const row of karmaTable.rows) {
+          if (row.firstElementChild.textContent !== 'Date') {
+            // Compare the timestamp with that of the last recorded +K message that has been read. A date
+            // comparison is not necessary since this list is always sorted in descending order.
+            if (row.firstElementChild.textContent !== values.improveNavigationBar.lastKarmaRead) {
+              unreadKarmaCount += 1
+            } else {
+              break
+            }
+          }
+        }
+        unreadCountButton.textContent = `+K: ${unreadKarmaCount}`
+      }
+    }
+
+    // Add a button that shows the number of unread forum PMs and links to the inbox. If the button is clicked when the
+    // user is not logged in, the error page displayed will allow the user to log in.
+    addNavigationButton(navigationBar, 'PM: –', 'https://forums.e-hentai.org/index.php?act=Msg&CODE=01')
+    fetchUnreadCount('https://forums.e-hentai.org/', updateUnreadPmCount)
+
+    // Add a button that shows the number of unread mooglemails and links to the MM inbox.
+    addNavigationButton(navigationBar, 'MM: –', 'https://hentaiverse.org/?s=Bazaar&ss=mm')
+    fetchUnreadCount('https://hentaiverse.org/?s=Bazaar&ss=mm', updateUnreadMmCount)
+
+    // Add a button that shows the number of unread +K messages and links to the karma log. Since the karma log does not
+    // offer an unread count itself, the script needs to keep track of the last message read.
     if (windowUrl === 'https://e-hentai.org/logs.php?t=karma') {
       const karmaTable = document.getElementsByTagName('table')[0]
-      if (typeof karmaTable === 'undefined') {
-        addNavigationButton(navigationBar, 'Unread +K: –', 'https://e-hentai.org/logs.php?t=karma')
+      // How this page will look when the user does not have any karma message is not known, so the empty karma
+      // page scenario here is tested in two ways like in updateUnreadKarmaCount().
+      if (typeof karmaTable === 'undefined' ||
+        document.querySelector('#lb + div').textContent.match(/Total Karma: (\d+)/)[1] === '0') {
+        addNavigationButton(navigationBar, '+K: –', 'https://e-hentai.org/logs.php?t=karma')
       } else {
-        addNavigationButton(navigationBar, 'Unread +K: 0', 'https://e-hentai.org/logs.php?t=karma')
+        addNavigationButton(navigationBar, '+K: 0', 'https://e-hentai.org/logs.php?t=karma')
 
         // Record the timestamp of the latest karma message and update the userscript storage if needed.
         const latestKarmaTimestamp = karmaTable.rows[1].firstElementChild.textContent
@@ -1916,68 +2029,8 @@
         }
       }
     } else {
-      addNavigationButton(navigationBar, 'Unread +K: –', 'https://e-hentai.org/logs.php?t=karma')
-
-      /**
-       * Fetches the karma log to check timestamps for new karma messages and update the "unread +K" button.
-       */
-      ;(function fetchUnreadKarmaCount () {
-        // The XHR will not retry on network or HTML error, because the error may persist for a while and the user
-        // cannot cancel this endless retry process.
-        const xhrDetails = {
-          method: 'GET',
-          synchronous: false,
-          timeout: 60000,
-          url: 'https://e-hentai.org/logs.php?t=karma',
-          onload: function (response) {
-            if (response.status === 200) {
-              const documentReceived = (new DOMParser()).parseFromString(response.responseText, 'text/html')
-              const karmaTable = documentReceived.getElementsByTagName('table')[0]
-              // How this page will look when the user does not have any karma message is not known, so the empty karma
-              // page scenario here is tested in two ways. The value for last karma read is not recorded so the next two
-              // branches below will work as intended.
-              if (typeof karmaTable === 'undefined' ||
-                documentReceived.querySelector('#lb + div').textContent.match(/Total Karma: (\d+)/)[1] === '0') {
-                xpathSelector(document, './/a[text() = "Unread +K: –"]').textContent = 'Unread +K: 0'
-                return
-              }
-
-              // When this unread +K check is done for the first time, assume the user has read the latest karma message
-              // and record this timestamp as read.
-              if (values.improveNavigationBar.lastKarmaRead === '') {
-                values.improveNavigationBar.lastKarmaRead = karmaTable.rows[1].firstElementChild.textContent
-                api.setValue('values', JSON.stringify(values))
-                xpathSelector(document, './/a[text() = "Unread +K: –"]').textContent = 'Unread +K: 0'
-              } else {
-                let unreadKarmaCount = 0
-                for (const row of karmaTable.rows) {
-                  if (row.firstElementChild.textContent !== 'Date') {
-                    // Compare the timestamp with that of the last recorded +K message that has been read. A date
-                    // comparison is not necessary since this list is always sorted in descending order.
-                    if (row.firstElementChild.textContent !== values.improveNavigationBar.lastKarmaRead) {
-                      unreadKarmaCount += 1
-                    } else {
-                      break
-                    }
-                  }
-                }
-                xpathSelector(document, './/a[text() = "Unread +K: –"]').textContent = `Unread +K: ${unreadKarmaCount}`
-              }
-            }
-          },
-          ontimeout: function (response) {
-            fetchUnreadKarmaCount()
-          }
-        }
-
-        const errorHandler = runtimeError => {}
-        if (api.version === 'v4') {
-          api.xmlHttpRequest(xhrDetails).catch(errorHandler)
-        } else {
-          xhrDetails.onerrror = errorHandler
-          api.xmlHttpRequest(xhrDetails)
-        }
-      })()
+      addNavigationButton(navigationBar, '+K: –', 'https://e-hentai.org/logs.php?t=karma')
+      fetchUnreadCount('https://e-hentai.org/logs.php?t=karma', updateUnreadKarmaCount)
     }
   }
 
@@ -2181,36 +2234,48 @@
    * Applies subjective style fixes to make some elements look better and more consistent in general.
    */
   const applySubjectiveFixes = function () {
-    // Adjust the input elements everywhere.
-    let subjectiveFixesStyles = `
-      /* use consistent 1px border */
-      input[type = "button"], input[type = "submit"] { border-width: 1px; }
-      /* vertically center the text in input elements */
-      input[type = "text"], input[type = "password"], select, textarea { padding: 2px 3px; }`
+    let subjectiveFixesStyles
 
-    if (document.getElementById('searchbox') === null) {
-      // The vertical spaces around the links at the very bottom, such as "terms of service", are either too small or
-      // too big. They are also inconsistent between gallery view and the other page types. The layout is better in
-      // gallery view so the styles are adjusted to match this page type.
-      subjectiveFixesStyles += `
-        /* use consistent vertical spacing around the links at the very bottom */
-        div.ido + p.ip, div.stuffbox + p.ip, div.stuffbox + script + p.ip { padding: 0 5px 5px 5px;
-          margin-top: -5px; }
-        div.dp { margin-top: 0 !important; }`
+    if (pageType !== 'EH forums' && pageType !== 'HentaiVerse') {
+      // Adjust the input elements everywhere.
+      subjectiveFixesStyles = `
+        /* use consistent 1px border */
+        input[type = "button"], input[type = "submit"] { border-width: 1px; }
+        /* vertically center the text in input elements */
+        input[type = "text"], input[type = "password"], select, textarea { padding: 2px 3px; }`
 
-      // The margins around .stuffbox are also inconsistent between pages under "my home".
-      if (windowUrl.includes('uconfig.php') || windowUrl.includes('mytags')) {
+      if (document.getElementById('searchbox') === null) {
+        // The vertical spaces around the links at the very bottom, such as "terms of service", are either too small or
+        // too big. They are also inconsistent between gallery view and the other page types. The layout is better in
+        // gallery view so the styles are adjusted to match this page type.
         subjectiveFixesStyles += `
-          /* use consistent vertical margins around .stuffbox */
-          #outer.stuffbox { margin:10px auto }`
+          /* use consistent vertical spacing around the links at the very bottom */
+          div.ido + p.ip, div.stuffbox + p.ip, div.stuffbox + script + p.ip { padding: 0 5px 5px 5px;
+            margin-top: -5px; }
+          div.dp { margin-top: 0 !important; }`
+
+        // The margins around .stuffbox are also inconsistent between pages under "my home".
+        if (windowUrl.includes('uconfig.php') || windowUrl.includes('mytags')) {
+          subjectiveFixesStyles += `
+            /* use consistent vertical margins around .stuffbox */
+            #outer.stuffbox { margin:10px auto }`
+        }
+      }
+
+      // Adjust the general placement of elements slighlty in the thumbnail gallery list display mode for better symmetry.
+      if (displayMode === 'thumbnail') {
+        subjectiveFixesStyles += `
+          .gl3t, .gl4t { margin-bottom: 3px; }
+          .gl6t { padding-top: 3px; padding-bottom: 1px; }`
       }
     }
 
-    // Adjust the general placement of elements slighlty in the thumbnail gallery list display mode for better symmetry.
-    if (displayMode === 'thumbnail') {
-      subjectiveFixesStyles += `
-        .gl3t, .gl4t { margin-bottom: 3px; }
-        .gl6t { padding-top: 3px; padding-bottom: 1px; }`
+    if (pageType === 'EH forums') {
+      if (/forums\.e-hentai\.org\/index\.php\?(?:act=Msg&CODE=0?4|CODE=0?4&act=Msg)/.test(windowUrl)) {
+        // Tick the two checkboxes for new forum PMs to add sent PMs to sent items and track these messages by default.
+        document.getElementsByName('add_sent')[0].checked = true
+        document.getElementsByName('add_tracking')[0].checked = true
+      }
     }
 
     appendStyleText(document.documentElement, 'subjectiveFixesStyles', subjectiveFixesStyles)
@@ -2607,7 +2672,7 @@
         'adding a few additional buttons (one option below)')
 
       extendWithCheckBox(appendRow(controlPanel, 1), 'improveNavigationBar-unreadCountsEnabled',
-        settings.improveNavigationBar.unreadCountsEnabled, 'Show the numbers of unread forum PMs and unread +K ' +
+        settings.improveNavigationBar.unreadCountsEnabled, 'Show the numbers of unread forum PMs, HV MMs and +K ' +
         'messages when you are logged in')
 
       // applyTextFilters
@@ -2785,6 +2850,11 @@
         settings.useAutomatedDownloads.archiveDownloadType, options.useAutomatedDownloads.archiveDownloadType, '(the ' +
         '"auto select" archiver options in your EH gallery settings can override this archive type)')
 
+      extendWithCheckBox(appendRow(controlPanel, 2), 'useAutomatedDownloads-appendIdentifiersEnabled',
+        settings.useAutomatedDownloads.appendIdentifiersEnabled, 'Append identifiers to the filename of every ' +
+        'archive downloaded by this feature so that other programs can use these to accurately retrieve metadata (' +
+        'cannot work on some browsers e.g., Chromium)')
+
       const pageDownloadEnabledRow = extendWithCheckBox(appendRow(controlPanel, 1),
         'useAutomatedDownloads-pageDownloadEnabled', settings.useAutomatedDownloads.pageDownloadEnabled, 'Enable the ' +
         'one-click page download button, which will automatically start downloads to download all galleries on a ' +
@@ -2911,6 +2981,10 @@
       extendWithCheckBox(appendRow(controlPanel, 0), 'script-filterButtonEnabled',
         settings.script.filterButtonEnabled, 'Show a button next to the gallery list display mode selector to easily ' +
         'switch the additional filters feature on/off as a whole without affecting the settings for individual filters')
+
+      extendWithCheckBox(appendRow(controlPanel, 0), 'script-firefoxCompatibilityEnabled',
+        settings.script.firefoxCompatibilityEnabled, 'Use Firefox compatibility mode to ensure the features that ' +
+        'load early will always run, at the cost of causing noticeable visual changes when they are loaded')
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'script-buttonTooltipEnabled',
         settings.script.buttonTooltipEnabled, 'Show tooltips on control buttons added by this userscript')
@@ -3590,7 +3664,15 @@
         onload: function (response) {
           const documentReceived = domParser.parseFromString(response.responseText, 'text/html')
           if (response.status === 200) {
-            onloadFunction(galleryDownloadButton, documentReceived, response)
+            // Some errors have status code 200, so it is safer to check for known types of errors here as well.
+            // "unknownError" here means no error has been found. These errors include "unavailableTorrentError", and
+            // presumably "unavailableArchiverError" as well.
+            if (checkErrorMessage(documentReceived.body.textContent) === 'unknownError') {
+              onloadFunction(galleryDownloadButton, documentReceived, response)
+            } else {
+              handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent),
+                documentReceived.documentElement.outerHTML)
+            }
           } else if (response.status === 404) {
             handleError(galleryDownloadButton, 'unavailableGalleryError')
           } else {
@@ -3641,9 +3723,9 @@
      *
      * @param {HTMLDivElement} galleryDownloadButton - The gallery download button associated with this attempt.
      * @param {string} downloadUrl - The URL to which this XHR will be sent to request the file download for testing.
-     * @param {Function} onsuccessFunction - The function that will run when this XHR detects a file download.
+     * @param {onloadFunction} onloadFunction - The function that will run when this XHR detects a file download.
      */
-    const testDownloadHeaders = function (galleryDownloadButton, downloadUrl, onsuccessFunction) {
+    const testDownloadHeaders = function (galleryDownloadButton, downloadUrl, onloadFunction) {
       // Check the state of the gallery download button for the same reason as in attemptDownloadStep().
       if (!galleryDownloadButton.className.includes('loading')) {
         return
@@ -3666,7 +3748,7 @@
               // When a file download is being served, let this test XHR abort itself to prevent it from downloading the
               // whole response, and start the actual file download using the supplied function.
               galleryDownloadButton.xhr.abort()
-              onsuccessFunction(galleryDownloadButton, undefined, response)
+              onloadFunction(galleryDownloadButton, undefined, response)
             }
           } if (response.readyState === 4) {
             // If the XHR is not aborted and reaches the "load" ready state, there must be an application error.
@@ -3677,7 +3759,7 @@
         },
         ontimeout: function (response) {
           // Retry this step after the 30s timeout, until the user aborts this download attempt using the button.
-          testDownloadHeaders(galleryDownloadButton, downloadUrl, onsuccessFunction)
+          testDownloadHeaders(galleryDownloadButton, downloadUrl, onloadFunction)
         }
       }
 
@@ -3717,13 +3799,21 @@
         return
       }
 
+      // Replace illegal characters in the filename with their legal, full-width versions to better preserve the gallery
+      // title. This should not apply to Chromium browsers because they always respect the filename from the response
+      // headers, but still helps. Some of these illegal characters like "/" are already automatically converted to
+      // spaces by the site in the headers, while others like ":" are not.
+      let formattedName = replaceIllegalCharacters(filename)
+      // The filename change below will not work on Chromium browsers because they always respect the response headers.
+      const extensionSplit = formattedName.match(/(.+?)(\.zip|\.torrent)$/)
+      if (extensionSplit[2] === '.zip' && shortcuts.appendIdentifiersEnabled) {
+        const identifiers = galleryDownloadButton.gallery.match(/e(?:-|x)hentai\.org\/g\/(\d+)\/([0-9a-z]+)/)
+        formattedName = `${extensionSplit[1]} [GID ${identifiers[1]} GT ${identifiers[2]}]${extensionSplit[2]}`
+      }
+
       const xhrDetails = {
         url: downloadUrl,
-        // Replace illegal characters in the filename with their legal, full-width versions to better preserve the
-        // gallery title. This does not apply to Chromium browsers, though, because it seems they always use the default
-        // name from the response headers. Some of these illegal characters like "/" are automatically converted to
-        // spaces by the site in the headers, while others like ":" are not.
-        name: replaceIllegalCharacters(filename),
+        name: formattedName,
         saveAs: false,
         timeout: 30000,
         onload: function (response) {
@@ -3929,6 +4019,8 @@
     /**
      * Checks an error message and returns the type of the error.
      *
+     * Some of the errors come from the list of technical issues: https://ehwiki.org/wiki/Technical_Issues
+     *
      * @param {string} message - A message that should indicate the type of error.
      */
     const checkErrorMessage = function (message) {
@@ -3950,6 +4042,11 @@
         return 'downloadedBytesError'
       } else if (message.includes('expired or invalid session')) {
         return 'expiredSessionError'
+      } else if (message.includes('you are opening pages too fast')) {
+        // Not sure whether this warning actually shows up in practice, but it is included in case it will help.
+        return 'heavyLoadError'
+      } else if (message.includes('your ip address has been temporarily banned')) {
+        return 'temporaryBanError'
       } else {
         return 'unknownError'
       }
@@ -3981,6 +4078,17 @@
           changeGalleryDownloadState(galleryDownloadButton, 'failed', alertMessage)
           shortcuts.downloadAlertsEnabled && alert(alertMessage)
           break
+        // These errors relate to temporary bans and are always shown.
+        case 'heavyLoadError':
+        case 'temporaryBanError':
+          changeGalleryDownloadState(galleryDownloadButton, 'unavailable', alertMessage)
+          // Stop the page download mode if it is active, because otherwise most downloads would just fail.
+          if (inPageDownloadMode) {
+            document.getElementById('pageDownloadButton').click()
+            alertMessage += ' The page download has been stopped.'
+          }
+          alert(alertMessage)
+          break
         // These are setup errors that would only happen when this script is not used properly. Alerts are always shown
         // for these because the user should immediately change how this script is used.
         case 'notLoggedInError':
@@ -4002,6 +4110,11 @@
         // pause the start of new gallery downloads in this mode until it is clicked.
         case 'unknownError':
           changeGalleryDownloadState(galleryDownloadButton, 'failed', alertMessage)
+          // Stop the page download mode if it is active, because new downloads can also fail.
+          if (inPageDownloadMode) {
+            document.getElementById('pageDownloadButton').click()
+            alertMessage += ' The page download has been stopped.'
+          }
           // A log file can be automatically generated and downloaded when an unknown error is encountered.
           if (typeof html !== 'undefined') {
             alertMessage += ' An error log will be automatically downloaded, which can be submitted to the author in ' +
@@ -4120,13 +4233,10 @@
      * @param {Object} responseReceived - The response from the last XHR, which is required to start the download.
      */
     const downloadTorrent = function (galleryDownloadButton, documentReceived, responseReceived) {
-      if (!documentReceived.body.textContent.includes('Torrent downloaded from E-Hentai Galleries')) {
-        // When this function runs, the reponse should have a status code of 200, and a document with the torrent data
-        // in "document.body" from DOMparser should be received. However, there is one error that can still happen here,
-        // which is "the torrent file could not be found". It should only happen to redistributable torrents.
-        handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent))
-        return
-      }
+      // When this function runs, the reponse should have a status code of 200, and a document with the torrent data in
+      // "document.body" from DOMparser should be received. There is one error that can happen before this, which is the
+      // "unavailableTorrentError", and it is now checked for in the onload part of attemptDownloadStep(). This error
+      // should only happen to redistributable torrents.
       const filename = decodeURIComponent(escape(responseReceived.responseHeaders.match(/filename="(.+)"$/m)[1]))
       if (shortcuts.apiTorrentDownloadEnabled) {
         downloadUsingApi(galleryDownloadButton, responseReceived.finalUrl, filename)
@@ -4331,7 +4441,7 @@
     /**
      * Downloads the archive file using GM.download().
      *
-     * @callback onloadFunction
+     * @type {onloadFunction}
      * @param {HTMLDivElement} galleryDownloadButton - The gallery download button associated with this download chain.
      * @param {undefined} documentReceived - The parsed document returned by the last XHR, which is not needed here.
      * @param {Object} responseReceived - The response from the last XHR, which is required to start the download.
