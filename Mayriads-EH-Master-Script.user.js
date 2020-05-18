@@ -17,6 +17,7 @@
 // @connect         self
 // @connect         e-hentai.org
 // @connect         ehtracker.org
+// @connect         hentaiverse.org
 // @connect         *
 // @run-at          document-start
 // @grant           GM.setValue
