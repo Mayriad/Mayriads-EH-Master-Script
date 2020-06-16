@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.1.0
+// @version         2.1.1
 // @author          Mayriad
 // @description     Adds 25+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -1476,6 +1476,7 @@
         for (const keyword of keywords) {
           if (comment.textContent.toLowerCase().includes(keyword)) {
             commentList.removeChild(comment.closest('.c1'))
+            break
           }
         }
       }
@@ -1508,6 +1509,7 @@
         for (const keyword of keywords) {
           if (post.textContent.toLowerCase().includes(keyword)) {
             removePost(post)
+            break
           }
         }
       }
@@ -1539,6 +1541,7 @@
         for (const keyword of keywords) {
           if (thread.textContent.toLowerCase().includes(keyword)) {
             threadList.removeChild(thread.closest('tr'))
+            break
           }
         }
       }
@@ -1580,6 +1583,7 @@
         for (const keyword of keywords) {
           if (lastPostThread.textContent.toLowerCase().includes(keyword)) {
             lastPostThread.textContent = '<blocked thread>'
+            break
           }
         }
       }
@@ -1681,6 +1685,14 @@
   const applyDesignFixes = function () {
     // This feature does not have fixes for the forums and HV at the moment.
     if (pageType === 'EH forums' || pageType === 'HentaiVerse') {
+      return
+    }
+
+    // Redirect to a working search page when searching for an uploader whose username contains a slash, because the
+    // site will intepret the slash as part of the URL and return 404 not found.
+    if (/e(?:-|x)hentai\.org\/uploader\/.+?%2F/.test(windowUrl)) {
+      const uploader = windowUrl.match(/e(?:-|x)hentai\.org\/uploader\/(.+)/)[1]
+      document.location.href = `https://e-hentai.org/?f_cats=0&f_search=uploader%3A${uploader}`
       return
     }
 
@@ -2069,9 +2081,22 @@
     }
 
     let forumLinksStyles = `
-      div#gd5 { margin-top: -5px; }
-      .g2, .g3 { padding-bottom: 8px; }
+      div#gd4 { width: 570px; }
+      #tagmenu_new { width: auto !important; }
+      div#gd5 { width: 160px; margin-top: -5px; }
       .gsp { padding-top: 12px; }`
+
+    // When there is an advertisement, there will be a #spa element between #gd3 and #gd4 that can take at least 600 x
+    // 60px space. The "report gallery" link is also too close to the advertisement, and the fix below is a design fix.
+    if (document.getElementById('spa') !== null) {
+      forumLinksStyles += `
+      .g2, .g3 { padding-bottom: 6px; }
+      .g3 { padding-top: 6px }`
+    } else {
+      forumLinksStyles += `
+      .g2, .g3 { padding-bottom: 8px; }`
+    }
+
     // The colour of the forum links is calculated by blending the background colour of div#gright and the colour of
     // sibling anchors in the ratio of 1:1.
     if ((windowUrl.includes('e-hentai.org') && settings.applyDarkTheme.featureEnabled) ||
@@ -2142,9 +2167,14 @@
       // When the star rating section is hidden, a row will be added to the table to show this rating for comparison.
       if (timesRated !== 0) {
         const starRating = +document.getElementById('rating_label').textContent.replace('Average: ', '')
-        addTableRow('Rating:', starRating + (starRating <= 1 ? ' star' : ' stars'))
+        if (isNaN(starRating)) {
+          // It is possible for starRating to be NaN, but it cannot be reproduced and how it happened is still unknown.
+          addTableRow('Rating:', 'N/A')
+        } else {
+          addTableRow('Rating:', starRating + (starRating <= 1 ? ' star' : ' stars'))
+        }
       } else {
-        addTableRow('Rating:', 'not yet rated')
+        addTableRow('Rating:', 'Not yet rated')
       }
     } else {
       document.getElementById('gdr').style.marginTop = '15px'
@@ -2178,7 +2208,7 @@
     } else {
       // Do not show the ratio when there are not enough star ratings and hence gallery visits to calculate reliable
       // results. Using 20 as the threshold here provides a good balance between availability and reliability.
-      addTableRow('Fav/Rate:', 'not enough data')
+      addTableRow('Fav/Rate:', 'Not enough data')
     }
   }
 
@@ -2272,8 +2302,9 @@
     }
 
     if (pageType === 'EH forums') {
-      if (/forums\.e-hentai\.org\/index\.php\?(?:act=Msg&CODE=0?4|CODE=0?4&act=Msg)/.test(windowUrl)) {
-        // Tick the two checkboxes for new forum PMs to add sent PMs to sent items and track these messages by default.
+      // Tick the two checkboxes for new forum PMs to add sent PMs to sent items and track these messages by default.
+      if (/forums\.e-hentai\.org\/index\.php\?(?:act=Msg(?:&CODE=0?4)?|CODE=0?4&act=Msg)/.test(windowUrl)) {
+        // URL is https://forums.e-hentai.org/index.php?act=msg when there is an error sending PM.
         document.getElementsByName('add_sent')[0].checked = true
         document.getElementsByName('add_tracking')[0].checked = true
       }
@@ -4805,9 +4836,10 @@
       let searchSubstring = text
       while (true) {
         const offset = searchSubstring.indexOf(url)
-        // Break the infinite loop if the target URL cannot be found. This should not happen, though.
+        // Break the infinite loop when the target URL cannot be found. This probably only happens when the URL should
+        // not be parsed due to the conditions below.
         if (offset === -1) {
-          break
+          return text
         }
         // Test what is just before this instance of the target URL to check whether it is already inside an anchor tag.
         if (!/="|">/.test(searchSubstring.substring(offset - 2, offset))) {
