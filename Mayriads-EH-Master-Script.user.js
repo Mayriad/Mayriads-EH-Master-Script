@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.1.1
+// @version         2.1.2
 // @author          Mayriad
 // @description     Adds 25+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -1688,8 +1688,8 @@
       return
     }
 
-    // Redirect to a working search page when searching for an uploader whose username contains a slash, because the
-    // site will intepret the slash as part of the URL and return 404 not found.
+    // Redirect to a working search page when searching for an uploader whose username contains a forward slash, because
+    // the username is not encoded and the site will interpret the slash as part of the URL and return 404 not found.
     if (/e(?:-|x)hentai\.org\/uploader\/.+?%2F/.test(windowUrl)) {
       const uploader = windowUrl.match(/e(?:-|x)hentai\.org\/uploader\/(.+)/)[1]
       document.location.href = `https://e-hentai.org/?f_cats=0&f_search=uploader%3A${uploader}`
@@ -4863,8 +4863,9 @@
       // The regex used to find URLs below is very simple but good enough so far. It tries to replicate how the site
       // will delimit URLs: In addition to spaces and line breaks, the symbols "[" / "]" / "," / "." / ";" / ":"
       // followed by a space or line break also delimit a URL; other symbols from the US international keyboard layout
-      // would be treated as part of the URL by the site. "">" is used to delimit URLs in tags.
-      const urls = formattedHTML.match(/https?:\/\/\S+?(?=[[\],.;:]?(?:\s|$)|">)/gm)
+      // would be treated as part of the URL by the site. "">" and "</" are used to delimit URLs in tags or surrounded
+      // by tags, respectively.
+      const urls = formattedHTML.match(/https?:\/\/\S+?(?=[[\],.;:]?(?:\s|$)|">|<\/)/gm)
       if (urls === null) {
         continue
       }
