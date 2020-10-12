@@ -736,6 +736,11 @@
       customDarkStyles += `
         .stuffbox table { background: #4f535b !important; border-color: #000000 !important; }
         tr > td.stdk, tr > td.stdv { border-color: #000000; }`
+      if (windowUrl.includes('gid')) {
+        // For the gallery ranking table on the EH-only public gallery statistics page:
+        customDarkStyles += `
+          table th { border-bottom-color: #000000 !important; }`
+      }
     } else if (windowUrl.includes('bitcoin.php')) {
       customDarkStyles += `
         #coinselector > div[onclick] { background-color: #4f535b; }
@@ -1769,14 +1774,15 @@
       // Fix the missing border at the top-right corner of each bar graph.
       for (const td of document.body.querySelectorAll('td[colspan]')) {
         // Compared to the private statistics page for a user, the public statistics page for a gallery includes an
-        // additional table about gallery toplists. This table is not a bar graph and does not contain "td.stdb".
+        // additional gallery ranking table. This table is not a bar graph and does not contain "td.stdb".
         const barCount = td.parentNode.parentNode.querySelectorAll('td.stdb').length
         if (barCount > 0) {
           td.setAttribute('colspan', barCount + 1)
         }
       }
       // The title and style sheet are both in the body on this page. That is not appropriate, but they do not really
-      // need to be fixed, so they are not moved.
+      // need to be fixed, so they are not moved. Also, this page seems unnecessarily wide, but such a wide page may be
+      // (eventually) needed for users with many years of statistics to show, and is hence not changed.
     } else if (pageType === 'upload management' || windowUrl.includes('repo.e-hentai.org')) {
       // Recreate the navigation bar using the new style on these pages, which still use the old navigation bar. They
       // use the old 0338 style sheet, so the new styles from 0347 are added to support the recreated bar. Swapping
