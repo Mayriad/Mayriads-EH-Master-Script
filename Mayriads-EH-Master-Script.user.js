@@ -1683,13 +1683,14 @@
    * be useful to Tenboro, although there are still a few more bugs that cannot be fixed here.
    */
   const applyDesignFixes = function () {
-    // This feature does not have fixes for the forums and HV at the moment.
-    if (pageType === 'EH forums' || pageType === 'HentaiVerse') {
+    // This feature does not have fixes for HV.
+    if (pageType === 'HentaiVerse') {
       return
     }
 
-    // Redirect to a working search page when searching for an uploader whose username contains a forward slash, because
-    // the username is not encoded and the site will interpret the slash as part of the URL and return 404 not found.
+    // Redirect to a working search page when directly searching for an uploader whose username contains a forward slash
+    // (/) by clicking the uploader username in gallery view, because the username is not encoded and the site will
+    // interpret the slash as part of the URL and return 404 not found.
     if (/e(?:-|x)hentai\.org\/uploader\/.+?%2F/.test(windowUrl)) {
       const uploader = windowUrl.match(/e(?:-|x)hentai\.org\/uploader\/(.+)/)[1]
       document.location.href = `https://e-hentai.org/?f_cats=0&f_search=uploader%3A${uploader}`
@@ -1713,8 +1714,8 @@
           a:visited .glink, a:active .glink { color: #C9B4AC }`
       }
 
-      // Fix the "no unfiltered results in this page range" message from second-stage filters. It has two problems:
-      // 1. The span of this message's row in minimal(+) display modes is one column short.
+      // Fix the message "no unfiltered results in this page range" from second-stage filters. It has two problems:
+      // 1. The colspan of this message's row in minimal(+) display modes is one column short.
       // 2. The table header row exists in all display modes other than extended, which is inconsistent, and it should
       //    not exist in the thumbnail gallery list display mode, which does not use a details table.
 
@@ -1839,6 +1840,12 @@
           }
         }
       }
+    } else if (pageType === 'EH forums') {
+      // Use a relative limit instead of an absolute one to ensure images in posts will fit inside the viewport. This
+      // applies to both thread view and thread-post view.
+      designFixesStyles += `
+        /* limit relative size of images in posts */
+        .postcolor img { max-width: 100% !important; }`
     } else if (/e-hentai\.org\/gallerypopups\.php\?gid=\d+&t=[0-9a-z]+&act=expunge/.test(windowUrl)) {
       // The spacing between each pair of username and PM icon in the expunge log is inconsistent with that in gallery
       // view. "padding-left" of the PM icon is therefore increased by 18px to match the spacing in gallery view, which
