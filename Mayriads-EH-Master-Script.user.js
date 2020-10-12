@@ -1766,11 +1766,14 @@
         pony.parentNode.style.transform = 'translateY(4px)'
       }
     } else if (windowUrl.includes('stats.php')) {
-      // Fix the missing border at the top-right corner of each graph.
+      // Fix the missing border at the top-right corner of each bar graph.
       for (const td of document.body.querySelectorAll('td[colspan]')) {
-        // If the border is always missing above the last column and only this column for everyone, then
-        // "+td.getAttribute('colspan') + 1" would be enough.
-        td.setAttribute('colspan', td.parentNode.parentNode.querySelectorAll('td.stdb').length + 1)
+        // Compared to the private statistics page for a user, the public statistics page for a gallery includes an
+        // additional table about gallery toplists. This table is not a bar graph and does not contain "td.stdb".
+        const barCount = td.parentNode.parentNode.querySelectorAll('td.stdb').length
+        if (barCount > 0) {
+          td.setAttribute('colspan', barCount + 1)
+        }
       }
       // The title and style sheet are both in the body on this page. That is not appropriate, but they do not really
       // need to be fixed, so they are not moved.
