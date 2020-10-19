@@ -783,6 +783,12 @@
       customDarkStyles += `
         body > div:first-child { border-radius: 9px; background: #4f535b !important; border-color: #000000 !important; }
         #as { padding-bottom: 0 !important; background: #4f535b !important; border-color: #aeaeae !important; }`
+    } else if (windowUrl.includes('tools.php?act=track_expunge')) {
+      customDarkStyles += `
+        body > div > div > table { filter: brightness(2); } `
+    } else if (windowUrl.includes('tools.php?act=track_rename')) {
+      customDarkStyles += `
+        body > div > div > div { filter: brightness(2); } `
     }
 
     const scientificDarkStylesElement = appendStyleText(document.documentElement, 'scientificDarkStyles',
@@ -4879,8 +4885,8 @@
       // The regex used to find URLs below is very simple but good enough so far. It tries to replicate how the site
       // will delimit URLs: In addition to spaces and line breaks, the symbols "[" / "]" / "," / "." / ";" / ":"
       // followed by a space or line break also delimit a URL; other symbols from the US international keyboard layout
-      // would be treated as part of the URL by the site. "">" and "</" are used to delimit URLs in tags or surrounded
-      // by tags, respectively.
+      // would be treated as part of the URL by the site, such as other types of brackets. "">" and "</" are used to
+      // delimit URLs in tags or surrounded by tags, respectively.
       const urls = formattedHTML.match(/https?:\/\/\S+?(?=[[\],.;:]?(?:\s|$)|">|<\/)/gm)
       if (urls === null) {
         continue
