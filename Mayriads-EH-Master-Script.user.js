@@ -1780,12 +1780,16 @@
       }
 
       // Fix the vertical position of ponies so that they align with the border of gallery lists.
+      // DISABLED: It has been discovered that the adjustment needed differs by pony, browser and gallery list type, and
+      // it is too difficult to fix the ponies completely.
+      /*
       const pony = document.body.querySelector('img[src ^= "https://ehgt.org/g/ponies/"]')
       if (pony !== null) {
         // Ponies have different sizes and absolute positions, but the vertical gap is always the same, so translateY()
         // can be used. This should not cause subpixel rendering.
         pony.parentNode.style.transform = 'translateY(4px)'
       }
+      */
     } else if (windowUrl.includes('stats.php')) {
       // Fix the missing border at the top-right corner of each bar graph.
       for (const td of document.body.querySelectorAll('td[colspan]')) {
