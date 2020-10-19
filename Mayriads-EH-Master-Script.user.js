@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.1.1
+// @version         2.1.2
 // @author          Mayriad
 // @description     Adds 25+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -641,7 +641,12 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/e-hentai\.org\/mpv\//.test(windowUrl)) {
+    if (/e-hentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+      scientificDarkStyles += `
+        #gdt.exp_outer { border-color: #000000; }
+        .exp_entry { border-color: #8d8d8d; }
+        .exp_table { border-color: #34353b; }`
+    } else if (/e-hentai\.org\/mpv\//.test(windowUrl)) {
       scientificDarkStyles += `
         div.mi0 { background: #43464e; border: 1px solid #34353b; }`
     } else if (windowUrl.includes('favorites.php')) {
@@ -736,6 +741,11 @@
       customDarkStyles += `
         .stuffbox table { background: #4f535b !important; border-color: #000000 !important; }
         tr > td.stdk, tr > td.stdv { border-color: #000000; }`
+      if (windowUrl.includes('gid')) {
+        // For the gallery ranking table on the EH-only public gallery statistics page:
+        customDarkStyles += `
+          table th { border-bottom-color: #000000 !important; }`
+      }
     } else if (windowUrl.includes('bitcoin.php')) {
       customDarkStyles += `
         #coinselector > div[onclick] { background-color: #4f535b; }
@@ -778,6 +788,26 @@
       customDarkStyles += `
         body > div:first-child { border-radius: 9px; background: #4f535b !important; border-color: #000000 !important; }
         #as { padding-bottom: 0 !important; background: #4f535b !important; border-color: #aeaeae !important; }`
+    } else if (windowUrl.includes('tools.php?act=track_expunge')) {
+      // Using the brightness filter seems to disfigure the text in anchor elements on Firefox, so a more hardcoded
+      // approach is used below. It is likely caused by bitmap conversion of ClearType text. Revoked expunge petitions
+      // will still appear disfigured because they cannot be identified via CSS. If Firefox fixes this problem with
+      // ClearType, then a simple filter will be enough.
+      customDarkStyles += `
+        /* cover everything but avoid application to usernames */
+        td:not(:nth-child(3)) { filter: brightness(2); }
+        /* avoid application to conflict gallery */
+        body > div > div > table > tbody > tr:nth-child(4) > td:nth-child(2),
+        /* avoid application to entire tables */
+        body > div > div > table > tbody > tr:nth-child(5) > td:nth-child(2),
+        body > div > div > table > tbody > tr:nth-child(8) > td:nth-child(2) { filter: none; }`
+    } else if (windowUrl.includes('tools.php?act=track_rename')) {
+      customDarkStyles += `
+        /* cover submitted rename titles */
+        body > div > div > div > div:nth-child(1),
+        /* cover the vote details but avoid application to current and original titles and usernames */
+        body > div > div:nth-child(3) td:not(:nth-child(3)),
+        body > div > div:nth-child(5) td:not(:nth-child(3)) { filter: brightness(2); }`
     }
 
     const scientificDarkStylesElement = appendStyleText(document.documentElement, 'scientificDarkStyles',
@@ -944,7 +974,12 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/exhentai\.org\/mpv\//.test(windowUrl)) {
+    if (/exhentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+      scientificLightStyles += `
+        #gdt.exp_outer { border-color: #5C0D12; }
+        .exp_entry { border-color: #B5A4A4; }
+        .exp_table { border-color: #5C0D12; }`
+    } else if (/exhentai\.org\/mpv\//.test(windowUrl)) {
       scientificLightStyles += `
         div.mi0 { background: #F2EFDF; border: 1px solid #E3E0D1; }`
     } else if (windowUrl.includes('favorites.php')) {
@@ -1139,13 +1174,13 @@
       dmsDiv.setAttribute('style', 'position: absolute; top: 29px')
       const pageTableTop = document.getElementsByClassName('ptt')[0]
       pageTableTop.parentNode.insertBefore(dmsDiv, pageTableTop)
-    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/([0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
       if (xpathSelector(document, './/a[text() = "Get Me Outta Here"]') !== null) {
         pageType = 'content warning'
       } else {
         pageType = 'gallery view'
       }
-    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/([0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
       pageType = 'MPV view'
     } else if (/e(?:-|x)hentai\.org\/s\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'image view'
@@ -1683,13 +1718,14 @@
    * be useful to Tenboro, although there are still a few more bugs that cannot be fixed here.
    */
   const applyDesignFixes = function () {
-    // This feature does not have fixes for the forums and HV at the moment.
-    if (pageType === 'EH forums' || pageType === 'HentaiVerse') {
+    // This feature does not have fixes for HV.
+    if (pageType === 'HentaiVerse') {
       return
     }
 
-    // Redirect to a working search page when searching for an uploader whose username contains a slash, because the
-    // site will intepret the slash as part of the URL and return 404 not found.
+    // Redirect to a working search page when directly searching for an uploader whose username contains a forward slash
+    // (/) by clicking the uploader username in gallery view, because the username is not encoded and the site will
+    // interpret the slash as part of the URL and return 404 not found.
     if (/e(?:-|x)hentai\.org\/uploader\/.+?%2F/.test(windowUrl)) {
       const uploader = windowUrl.match(/e(?:-|x)hentai\.org\/uploader\/(.+)/)[1]
       document.location.href = `https://e-hentai.org/?f_cats=0&f_search=uploader%3A${uploader}`
@@ -1713,8 +1749,8 @@
           a:visited .glink, a:active .glink { color: #C9B4AC }`
       }
 
-      // Fix the "no unfiltered results in this page range" message from second-stage filters. It has two problems:
-      // 1. The span of this message's row in minimal(+) display modes is one column short.
+      // Fix the message "no unfiltered results in this page range" from second-stage filters. It has two problems:
+      // 1. The colspan of this message's row in minimal(+) display modes is one column short.
       // 2. The table header row exists in all display modes other than extended, which is inconsistent, and it should
       //    not exist in the thumbnail gallery list display mode, which does not use a details table.
 
@@ -1758,21 +1794,29 @@
       }
 
       // Fix the vertical position of ponies so that they align with the border of gallery lists.
+      // DISABLED: It has been discovered that the adjustment needed differs by pony, browser and gallery list type, and
+      // it is too difficult to fix the ponies completely.
+      /*
       const pony = document.body.querySelector('img[src ^= "https://ehgt.org/g/ponies/"]')
       if (pony !== null) {
         // Ponies have different sizes and absolute positions, but the vertical gap is always the same, so translateY()
         // can be used. This should not cause subpixel rendering.
         pony.parentNode.style.transform = 'translateY(4px)'
       }
+      */
     } else if (windowUrl.includes('stats.php')) {
-      // Fix the missing border at the top-right corner of each graph.
+      // Fix the missing border at the top-right corner of each bar graph.
       for (const td of document.body.querySelectorAll('td[colspan]')) {
-        // If the border is always missing above the last column and only this column for everyone, then
-        // "+td.getAttribute('colspan') + 1" would be enough.
-        td.setAttribute('colspan', td.parentNode.parentNode.querySelectorAll('td.stdb').length + 1)
+        // Compared to the private statistics page for a user, the public statistics page for a gallery includes an
+        // additional gallery ranking table. This table is not a bar graph and does not contain "td.stdb".
+        const barCount = td.parentNode.parentNode.querySelectorAll('td.stdb').length
+        if (barCount > 0) {
+          td.setAttribute('colspan', barCount + 1)
+        }
       }
       // The title and style sheet are both in the body on this page. That is not appropriate, but they do not really
-      // need to be fixed, so they are not moved.
+      // need to be fixed, so they are not moved. Also, this page seems unnecessarily wide, but such a wide page may be
+      // (eventually) needed for users with many years of statistics to show, and is hence not changed.
     } else if (pageType === 'upload management' || windowUrl.includes('repo.e-hentai.org')) {
       // Recreate the navigation bar using the new style on these pages, which still use the old navigation bar. They
       // use the old 0338 style sheet, so the new styles from 0347 are added to support the recreated bar. Swapping
@@ -1839,6 +1883,12 @@
           }
         }
       }
+    } else if (pageType === 'EH forums') {
+      // Use a relative limit instead of an absolute one to ensure images in posts will fit inside the viewport. This
+      // applies to both thread view and thread-post view.
+      designFixesStyles += `
+        /* limit relative size of images in posts */
+        .postcolor img { max-width: 100% !important; }`
     } else if (/e-hentai\.org\/gallerypopups\.php\?gid=\d+&t=[0-9a-z]+&act=expunge/.test(windowUrl)) {
       // The spacing between each pair of username and PM icon in the expunge log is inconsistent with that in gallery
       // view. "padding-left" of the PM icon is therefore increased by 18px to match the spacing in gallery view, which
@@ -1849,6 +1899,10 @@
     } else if (windowUrl.includes('exhentai.org/tos.php')) {
       // Redirect the terms of service page in the EX upload interface, because this EX version does not exist.
       window.location.assign(windowUrl.replace('exhentai.org', 'e-hentai.org'))
+    } else if (windowUrl.includes('tools.php?act=track_rename')) {
+      designFixesStyles += `
+        /* let submitted rename titles wrap to next line to maintain page width */
+        body > div > div > div > div { white-space: unset !important; } `
     }
 
     if (pageType === 'gallery list' || windowUrl === 'https://e-hentai.org/bounty.php') {
@@ -2388,7 +2442,8 @@
    * Applies colour coding to new and expunged galleries on all types of gallery lists, except for gallery toplists.
    *
    * This feature will colour the titles and timestamps of new galleries blue and those of expunged galleries red to
-   * make them easier to spot.
+   * make them easier to spot. The titles of new galleries will also be made bold for further enhancement and
+   * consistency with the timestamps.
    */
   const colourCodeGalleries = function () {
     // This feature runs on gallery lists but not gallery toplists, because the elements there differ from other types
@@ -2398,7 +2453,7 @@
     }
 
     const colourCodingStyles = `
-      .glnew, tr[data-new] .glink, div[data-new] .glink { color: #22A7F0; }
+      .glnew, tr[data-new] .glink, div[data-new] .glink { color: #22A7F0; font-weight: bold; }
       div[id ^= "posted_"] > s, tr[data-expunged] .glink, div[data-expunged] .glink { color: #D91E18; }`
     appendStyleText(document.head, 'colourCodingStyles', colourCodingStyles)
   }
@@ -4863,8 +4918,9 @@
       // The regex used to find URLs below is very simple but good enough so far. It tries to replicate how the site
       // will delimit URLs: In addition to spaces and line breaks, the symbols "[" / "]" / "," / "." / ";" / ":"
       // followed by a space or line break also delimit a URL; other symbols from the US international keyboard layout
-      // would be treated as part of the URL by the site. "">" is used to delimit URLs in tags.
-      const urls = formattedHTML.match(/https?:\/\/\S+?(?=[[\],.;:]?(?:\s|$)|">)/gm)
+      // would be treated as part of the URL by the site, such as other types of brackets. "">" and "</" are used to
+      // delimit URLs in tags or surrounded by tags, respectively.
+      const urls = formattedHTML.match(/https?:\/\/\S+?(?=[[\],.;:]?(?:\s|$)|">|<\/)/gm)
       if (urls === null) {
         continue
       }
