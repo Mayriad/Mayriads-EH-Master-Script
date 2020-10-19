@@ -641,7 +641,12 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/e-hentai\.org\/mpv\//.test(windowUrl)) {
+    if (/e-hentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+      scientificDarkStyles += `
+        #gdt.exp_outer { border-color: #000000; }
+        .exp_entry { border-color: #8d8d8d; }
+        .exp_table { border-color: #34353b; }`
+    } else if (/e-hentai\.org\/mpv\//.test(windowUrl)) {
       scientificDarkStyles += `
         div.mi0 { background: #43464e; border: 1px solid #34353b; }`
     } else if (windowUrl.includes('favorites.php')) {
@@ -955,7 +960,12 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/exhentai\.org\/mpv\//.test(windowUrl)) {
+    if (/exhentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+      scientificLightStyles += `
+        #gdt.exp_outer { border-color: #5C0D12; }
+        .exp_entry { border-color: #B5A4A4; }
+        .exp_table { border-color: #5C0D12; }`
+    } else if (/exhentai\.org\/mpv\//.test(windowUrl)) {
       scientificLightStyles += `
         div.mi0 { background: #F2EFDF; border: 1px solid #E3E0D1; }`
     } else if (windowUrl.includes('favorites.php')) {
@@ -1150,13 +1160,13 @@
       dmsDiv.setAttribute('style', 'position: absolute; top: 29px')
       const pageTableTop = document.getElementsByClassName('ptt')[0]
       pageTableTop.parentNode.insertBefore(dmsDiv, pageTableTop)
-    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/([0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
       if (xpathSelector(document, './/a[text() = "Get Me Outta Here"]') !== null) {
         pageType = 'content warning'
       } else {
         pageType = 'gallery view'
       }
-    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/([0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
       pageType = 'MPV view'
     } else if (/e(?:-|x)hentai\.org\/s\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'image view'
