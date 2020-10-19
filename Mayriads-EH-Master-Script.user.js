@@ -1871,6 +1871,10 @@
     } else if (windowUrl.includes('exhentai.org/tos.php')) {
       // Redirect the terms of service page in the EX upload interface, because this EX version does not exist.
       window.location.assign(windowUrl.replace('exhentai.org', 'e-hentai.org'))
+    } else if (windowUrl.includes('tools.php?act=track_rename')) {
+      designFixesStyles += `
+        /* let submitted rename titles wrap to next line to maintain page width */
+        body > div > div > div > div { white-space: unset !important; } `
     }
 
     if (pageType === 'gallery list' || windowUrl === 'https://e-hentai.org/bounty.php') {
