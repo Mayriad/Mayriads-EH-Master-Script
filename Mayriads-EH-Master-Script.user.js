@@ -789,11 +789,25 @@
         body > div:first-child { border-radius: 9px; background: #4f535b !important; border-color: #000000 !important; }
         #as { padding-bottom: 0 !important; background: #4f535b !important; border-color: #aeaeae !important; }`
     } else if (windowUrl.includes('tools.php?act=track_expunge')) {
+      // Using the brightness filter seems to disfigure the text in anchor elements on Firefox, so a more hardcoded
+      // approach is used below. It is likely caused by bitmap conversion of ClearType text. Revoked expunge petitions
+      // will still appear disfigured because they cannot be identified via CSS. If Firefox fixes this problem with
+      // ClearType, then a simple filter will be enough.
       customDarkStyles += `
-        body > div > div > table { filter: brightness(2); } `
+        /* cover everything but avoid application to usernames */
+        td:not(:nth-child(3)) { filter: brightness(2); }
+        /* avoid application to conflict gallery */
+        body > div > div > table > tbody > tr:nth-child(4) > td:nth-child(2),
+        /* avoid application to entire tables */
+        body > div > div > table > tbody > tr:nth-child(5) > td:nth-child(2),
+        body > div > div > table > tbody > tr:nth-child(8) > td:nth-child(2) { filter: none; }`
     } else if (windowUrl.includes('tools.php?act=track_rename')) {
       customDarkStyles += `
-        body > div > div > div { filter: brightness(2); } `
+        /* cover submitted rename titles */
+        body > div > div > div > div:nth-child(1),
+        /* cover the vote details but avoid application to current and original titles and usernames */
+        body > div > div:nth-child(3) td:not(:nth-child(3)),
+        body > div > div:nth-child(5) td:not(:nth-child(3)) { filter: brightness(2); }`
     }
 
     const scientificDarkStylesElement = appendStyleText(document.documentElement, 'scientificDarkStyles',
