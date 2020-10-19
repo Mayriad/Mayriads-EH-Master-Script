@@ -2414,7 +2414,8 @@
    * Applies colour coding to new and expunged galleries on all types of gallery lists, except for gallery toplists.
    *
    * This feature will colour the titles and timestamps of new galleries blue and those of expunged galleries red to
-   * make them easier to spot.
+   * make them easier to spot. The titles of new galleries will also be made bold for further enhancement and
+   * consistency with the timestamps.
    */
   const colourCodeGalleries = function () {
     // This feature runs on gallery lists but not gallery toplists, because the elements there differ from other types
@@ -2424,7 +2425,7 @@
     }
 
     const colourCodingStyles = `
-      .glnew, tr[data-new] .glink, div[data-new] .glink { color: #22A7F0; }
+      .glnew, tr[data-new] .glink, div[data-new] .glink { color: #22A7F0; font-weight: bold; }
       div[id ^= "posted_"] > s, tr[data-expunged] .glink, div[data-expunged] .glink { color: #D91E18; }`
     appendStyleText(document.head, 'colourCodingStyles', colourCodingStyles)
   }
