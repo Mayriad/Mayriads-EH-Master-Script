@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.1.2
+// @version         2.1.3
 // @author          Mayriad
 // @description     Adds 25+ features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -3751,14 +3751,15 @@
         onload: function (response) {
           const documentReceived = domParser.parseFromString(response.responseText, 'text/html')
           if (response.status === 200) {
-            // Some errors have status code 200, so it is safer to check for known types of errors here as well.
-            // "unknownError" here means no error has been found. These errors include "unavailableTorrentError", and
-            // presumably "unavailableArchiverError" as well.
-            if (checkErrorMessage(documentReceived.body.textContent) === 'unknownError') {
-              onloadFunction(galleryDownloadButton, documentReceived, response)
-            } else {
+            // At least "unavailableTorrentError" comes with status code 200, so a check is needed for the specific
+            // onloadFunction. My old comments say "unavailableArchiverError" might also come with status code 200, but
+            // this cannot be confirmed these days and is thus not handled below.
+            if (onloadFunction.name === 'downloadTorrent' &&
+              checkErrorMessage(documentReceived.body.textContent) === 'unavailableTorrentError') {
               handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent),
                 documentReceived.documentElement.outerHTML)
+            } else {
+              onloadFunction(galleryDownloadButton, documentReceived, response)
             }
           } else if (response.status === 404) {
             handleError(galleryDownloadButton, 'unavailableGalleryError')
