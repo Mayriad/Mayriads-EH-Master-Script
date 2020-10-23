@@ -2721,7 +2721,7 @@
       extendWithAnchor(scriptInfoRow, undefined, 'User Manual',
         'https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
-      extendWithAnchor(scriptInfoRow, undefined, 'Discussion Thread',
+      extendWithAnchor(scriptInfoRow, undefined, 'Discussion Thread - Ask Me If You Need Help!',
         'https://forums.e-hentai.org/index.php?showtopic=233955', true)
 
       // Sitewide features ---------------------------------------------------------------------------------------------
@@ -3060,10 +3060,10 @@
       extendWithCheckBox(appendRow(controlPanel, 0), 'addGuideLinks-featureEnabled',
         settings.addGuideLinks.featureEnabled, 'Add links to gallery upload guides to the upload management bar')
 
-      // Script setting ------------------------------------------------------------------------------------------------
+      // Script settings -----------------------------------------------------------------------------------------------
 
       controlPanel.insertRow(-1)
-      extendWithStrongText(appendRow(controlPanel, 0), undefined, 'Script setting')
+      extendWithStrongText(appendRow(controlPanel, 0), undefined, 'Script settings')
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'script-filterButtonEnabled',
         settings.script.filterButtonEnabled, 'Show a button next to the gallery list display mode selector to easily ' +
