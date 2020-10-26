@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/release/Mayriad/Mayriads-EH-Master-Script)](https://github.com/Mayriad/Mayriads-EH-Master-Script/releases) [![Github Release Date](https://img.shields.io/github/release-date/Mayriad/Mayriads-EH-Master-Script)](https://github.com/Mayriad/Mayriads-EH-Master-Script/releases) [![Github License](https://img.shields.io/github/license/Mayriad/Mayriads-EH-Master-Script)](https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/LICENSE) [![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen)](https://standardjs.com/)
 
-[Userscript Download](https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script) | [Userscript Wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki) | [Discussion Thread](https://forums.e-hentai.org/index.php?showtopic=233955)
+[Userscript Download](https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script) | [Userscript Wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki) | [Support Thread - Ask me if you need help!](https://forums.e-hentai.org/index.php?showtopic=233955)
 
 Adds 25+ features to E-Hentai.
 
