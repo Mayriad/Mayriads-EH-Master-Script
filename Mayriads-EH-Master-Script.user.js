@@ -2721,7 +2721,7 @@
       extendWithAnchor(scriptInfoRow, undefined, 'User Manual',
         'https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
-      extendWithAnchor(scriptInfoRow, undefined, 'Discussion Thread - Ask Me If You Need Help!',
+      extendWithAnchor(scriptInfoRow, undefined, 'Support Thread - Ask me if you need help!',
         'https://forums.e-hentai.org/index.php?showtopic=233955', true)
 
       // Sitewide features ---------------------------------------------------------------------------------------------
@@ -2940,7 +2940,7 @@
       extendWithCheckBox(appendRow(controlPanel, 2), 'useAutomatedDownloads-appendIdentifiersEnabled',
         settings.useAutomatedDownloads.appendIdentifiersEnabled, 'Append identifiers to the filename of every ' +
         'archive downloaded by this feature so that other programs can use these to accurately retrieve metadata (' +
-        'cannot work on some browsers e.g., Chromium)')
+        'cannot work on some browsers like Google Chrome)')
 
       const pageDownloadEnabledRow = extendWithCheckBox(appendRow(controlPanel, 1),
         'useAutomatedDownloads-pageDownloadEnabled', settings.useAutomatedDownloads.pageDownloadEnabled, 'Enable the ' +
