@@ -4839,13 +4839,13 @@
           box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); font-size: 6vh !important; line-height: 6vh; }`
     } else if (settings.addJumpButtons.jumpButtonStyle === 'slide-in rectangular buttons') {
       jumpButtonStyles = `
-        #jumpButtonHost { height: 20vh; width: 20vh; border-radius: 3px; position: fixed; right: -12vh; bottom: 2vh;
-          z-index: 3; box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); transition: 0.3s; }
-        #jumpButtonHost:hover { right: 2vh; transition: 0.3s; }
+        #jumpButtonHost { height: 20vh; width: 20vh; position: fixed; right: -14vh; bottom: 2vh; z-index: 3;
+          box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); transition: 0.3s; }
+        #jumpButtonHost:hover { right: -3px; transition: 0.3s; }
         #jumpToTopButton, #jumpToBottomButton { height: 10vh; width: 20vh; margin: auto; font-size: 6vh !important;
           line-height: 6vh; }
-        #jumpToTopButton { border-radius: 3px 3px 0 0; }
-        #jumpToBottomButton { border-radius: 0 0 3px 3px; }`
+        #jumpToTopButton { border-radius: 3px 0 0 0; }
+        #jumpToBottomButton { border-radius: 0 0 0 3px; }`
     }
 
     const jumpBehaviour = settings.addJumpButtons.jumpBehaviourStyle === 'smoothly' ? 'smooth' : 'auto'
