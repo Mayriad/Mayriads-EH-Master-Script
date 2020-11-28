@@ -192,7 +192,7 @@
     },
     addJumpButtons: {
       featureEnabled: true,
-      jumpButtonStyle: 'fade-in circular buttons',
+      jumpButtonStyle: 'slide-in rectangular buttons',
       jumpBehaviourStyle: 'smoothly'
     },
     parseExternalLinks: {
