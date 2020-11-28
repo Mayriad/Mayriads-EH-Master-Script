@@ -3,7 +3,7 @@
 // @namespace       https://github.com/Mayriad
 // @version         2.1.3
 // @author          Mayriad
-// @description     Adds 25+ features to E-Hentai
+// @description     Adds dozens of features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
 // @updateURL       https://openuserjs.org/meta/Mayriad/Mayriads_EH_Master_Script.meta.js
 // @downloadURL     https://openuserjs.org/install/Mayriad/Mayriads_EH_Master_Script.user.js
@@ -52,8 +52,7 @@
 // Userscript download: https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script
 // GitHub repository: https://github.com/Mayriad/Mayriads-EH-Master-Script
 // User manual: https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md
-// Userscript wiki: https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki
-// Discussion thread: https://forums.e-hentai.org/index.php?showtopic=233955
+// Support thread: https://forums.e-hentai.org/index.php?showtopic=233955
 
 /* global GM, alert, XPathResult, MutationObserver, DOMParser, Blob */
 
