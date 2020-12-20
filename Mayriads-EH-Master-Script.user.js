@@ -64,7 +64,7 @@
    * A callback function that handles a click mouse event.
    *
    * @callback clickEventHandler
-   * @param {MouseEvent} clickEvent - The event object passed to this event handler on click.
+   * @param {MouseEvent} [clickEvent] - The event object passed to this event handler on click.
    */
 
   // Initialisation ----------------------------------------------------------------------------------------------------
@@ -3098,7 +3098,7 @@
     }
 
     /**
-     * Helps createControlPanel() to append a anchor element to a host element as a child node.
+     * Helps createControlPanel() to append an anchor element to a host element as a child node.
      *
      * @param {HTMLElement} host - The element under which the anchor element will be added as a child node.
      * @param {string} [id] - An optional id that can be assigned to the anchor element.
@@ -4838,10 +4838,10 @@
           box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); font-size: 6vh !important; line-height: 6vh; }`
     } else if (settings.addJumpButtons.jumpButtonStyle === 'slide-in rectangular buttons') {
       jumpButtonStyles = `
-        #jumpButtonHost { height: 20vh; width: 20vh; position: fixed; right: -14vh; bottom: 2vh; z-index: 3;
+        #jumpButtonHost { height: 20vh; width: 10vw; position: fixed; right: -8.5vw; bottom: 2vh; z-index: 3;
           box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); transition: 0.3s; }
         #jumpButtonHost:hover { right: -3px; transition: 0.3s; }
-        #jumpToTopButton, #jumpToBottomButton { height: 10vh; width: 20vh; margin: auto; font-size: 6vh !important;
+        #jumpToTopButton, #jumpToBottomButton { height: 10vh; width: 10vw; margin: auto; font-size: 6vh !important;
           line-height: 6vh; }
         #jumpToTopButton { border-radius: 3px 0 0 0; }
         #jumpToBottomButton { border-radius: 0 0 0 3px; }`
