@@ -2000,12 +2000,17 @@
      * @param {Document} documentReceived - The parsed document returned by the caller XHR.
      */
     function updateUnreadPmCount (documentReceived) {
-      const unreadPmCount = documentReceived.querySelector('#userlinks a[href *= "act=Msg"]')
+      const unreadCountButton = xpathSelector(document, './/a[text() = "PM: –"]')
+      const newMessagesButton = documentReceived.querySelector('#userlinks a[href *= "act=Msg"]')
+
       // Check whether this inbox link exists and hence whether the user is logged in; then update the link if
       // the user is logged in.
-      if (unreadPmCount !== null) {
-        xpathSelector(document, './/a[text() = "PM: –"]').textContent = 'PM: ' +
-          unreadPmCount.textContent.match(/\d+/)[0]
+      if (newMessagesButton !== null) {
+        const unreadPmCount = newMessagesButton.textContent.match(/\d+/)[0]
+        unreadCountButton.textContent = 'PM: ' + unreadPmCount
+        if (unreadPmCount > 0) {
+          unreadCountButton.style.color = 'red'
+        }
       }
     }
 
@@ -2025,6 +2030,7 @@
       } else {
         // Only the rows that represent actual MMs will have an onclick property.
         unreadCountButton.textContent = 'MM: ' + documentReceived.querySelectorAll('#mmail_list tr[onclick]').length
+        unreadCountButton.style.color = 'red'
       }
     }
 
@@ -2066,6 +2072,9 @@
           }
         }
         unreadCountButton.textContent = `+K: ${unreadKarmaCount}`
+        if (unreadKarmaCount > 0) {
+          unreadCountButton.style.color = 'red'
+        }
       }
     }
 
