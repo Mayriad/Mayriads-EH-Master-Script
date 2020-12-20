@@ -13,7 +13,6 @@ sub plugin_info {
     name => 'Mayriad\'s EH Master Script',
     type => 'metadata',
     namespace => 'memsplugin',
-    login_from => 'ehlogin',
     author => 'Mayriad',
     version => '1.0.0',
     description => 'Accurately retrieves metadata from e-hentai.org using the identifiers appeneded to the filenames '
@@ -34,13 +33,14 @@ sub plugin_info {
       . 'AP///wD///8A////AP///wD///8A////AP///wD///8A//8AAP//AACDmQAAg5kAAJ+ZAACfmQAAn5kAAISBAACEgQAAn5kAAJ+ZAACfmQAAg5'
       . 'kAAIOZAAD//wAA//8AAA==',
     # Custom arguments:
-    oneshot_arg => 'Enter a valid EH gallery URL to copy metadata from this EH gallery to this LANraragi archvie',
-    parameters  => [
+    parameters => [
       {type => 'bool', desc =>  'Save the original Japanese title when available instead of the English or romanised '
         . 'title'},
       {type => 'bool', desc =>  'Save additional timestamp (time posted) and uploader metadata'},
       {type => 'bool', desc =>  'Use ExHentai link for source instead of E-Hentai link'}
-    ]
+    ],
+    oneshot_arg => 'Enter a valid EH gallery URL to copy metadata from this EH gallery to this LANraragi archive',
+    cooldown => 4
   );
 }
 
@@ -67,8 +67,8 @@ sub get_tags {
     # at the end, so the filename can have other information attached after the identifiers.
     ($gallery_id, $gallery_token) = ($lrr_info->{archive_title} =~ /.+? \[GID (\d+) GT ([0-9a-z]+)\]/);
     if ($gallery_id eq '' || $gallery_token eq '') {
-      my $file_error = "Skipping archive without connecting to EH, because the archive title does not have valid "
-        . "gallery identifiers from Mayriad\'s EH Master Script.";
+      my $file_error = 'Skipping archive without connecting to EH, because the archive title does not have valid '
+        . 'gallery identifiers from Mayriad\'s EH Master Script.';
       $logger->error($file_error);
       return (error => $file_error);
     }
@@ -86,7 +86,7 @@ sub get_tags {
   $logger->info("Sending the following tags to LRR: $eh_all_tags");
   my %metadata = (tags => $eh_all_tags);
   # Add the source tag outside get_eh_metadata(), so that this tag is only added when metadata has been successfully
-  # retrieved; otherwise $metadata{tags} may only contain this source tag and truly untagged galleries would be
+  # retrieved; otherwise $metadata{tags} may only contain this source tag and truly untagged galleries may be
   # incorrectly hidden.
   my $host = ($use_exhentai ? 'exhentai.org' : 'e-hentai.org');
   $metadata{tags} .= ", source:$host/g/$gallery_id/$gallery_token";
