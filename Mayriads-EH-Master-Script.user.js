@@ -2017,7 +2017,10 @@
     function updateUnreadMmCount (documentReceived) {
       const unreadCountButton = xpathSelector(document, './/a[text() = "MM: –"]')
 
-      if (documentReceived.getElementById('mmail_nnm') !== null) {
+      if (documentReceived.getElementById('mmail_outer') === null) {
+        // Do nothing because the MM inbox page was not received, likely because the user is in a battle.
+      } else if (documentReceived.getElementById('mmail_nnm') !== null) {
+        // Check for the "no new mail" indicator.
         unreadCountButton.textContent = 'MM: 0'
       } else {
         // Only the rows that represent actual MMs will have an onclick property.
