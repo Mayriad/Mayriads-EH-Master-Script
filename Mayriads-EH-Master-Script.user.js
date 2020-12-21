@@ -2147,8 +2147,10 @@
       document.getElementById('gd5').appendChild(paragraph)
     }
 
-    let forumLinksStyles = `
-      div#gd4 { width: 570px; }
+    // max-height: 100% is needed on div#gd4 below to limit the height of the tagging area to prevent its side borders
+    // from overflowing when a tag is selected.
+    let vigilanteLinksStyles = `
+      div#gd4 { width: 570px; max-height: 100%; }
       #tagmenu_new { width: auto !important; }
       div#gd5 { width: 160px; margin-top: -5px; }
       .gsp { padding-top: 12px; }`
@@ -2156,11 +2158,11 @@
     // When there is an advertisement, there will be a #spa element between #gd3 and #gd4 that can take at least 600 x
     // 60px space. The "report gallery" link is also too close to the advertisement, and the fix below is a design fix.
     if (document.getElementById('spa') !== null) {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2, .g3 { padding-bottom: 6px; }
       .g3 { padding-top: 6px }`
     } else {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2, .g3 { padding-bottom: 8px; }`
     }
 
@@ -2168,13 +2170,13 @@
     // sibling anchors in the ratio of 1:1.
     if ((windowUrl.includes('e-hentai.org') && settings.applyDarkTheme.featureEnabled) ||
       (windowUrl.includes('exhentai.org') && !settings.applyLightTheme.featureEnabled)) {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2.forum > a { color: #96989C; }`
     } else {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2.forum > a { color: #A57C78; }`
     }
-    appendStyleText(document.head, 'forumLinksStyles', forumLinksStyles)
+    appendStyleText(document.head, 'vigilanteLinksStyles', vigilanteLinksStyles)
 
     // These links are ordered by thread size.
     addLinkItem(' Tagging Assistance', 'https://forums.e-hentai.org/index.php?showtopic=184081', 'g2 forum gsp')
