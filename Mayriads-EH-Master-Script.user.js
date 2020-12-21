@@ -2337,11 +2337,11 @@
    * Applies subjective style fixes to make some elements look better and more consistent in general.
    */
   const applySubjectiveFixes = function () {
-    let subjectiveFixesStyles
+    let subjectiveFixesStyles = ''
 
     if (pageType !== 'EH forums' && pageType !== 'HentaiVerse') {
       // Adjust the input elements everywhere.
-      subjectiveFixesStyles = `
+      subjectiveFixesStyles += `
         /* use consistent 1px border */
         input[type = "button"], input[type = "submit"] { border-width: 1px; }
         /* vertically center the text in input elements */
@@ -2373,7 +2373,13 @@
       }
     }
 
-    if (pageType === 'EH forums') {
+    if (pageType === 'gallery view') {
+      // Realign and fix inconsistent tag input and button. This is partially caused by the input element fix above.
+      subjectiveFixesStyles += `
+        #newtagfield { line-height: 20px; }
+        #newtagbutton { width: 100px; max-width: calc(570px - 10px - 4px - 480px - 2px - 2px - 2px);
+          font-size: 10pt; padding: 2px 3px; }`
+    } else if (pageType === 'EH forums') {
       // Tick the two checkboxes for new forum PMs to add sent PMs to sent items and track these messages by default.
       if (/forums\.e-hentai\.org\/index\.php\?(?:act=Msg(?:&CODE=0?4)?|CODE=0?4&act=Msg)/.test(windowUrl)) {
         // URL is https://forums.e-hentai.org/index.php?act=msg when there is an error sending PM.
@@ -2390,7 +2396,9 @@
       }
     }
 
-    appendStyleText(document.documentElement, 'subjectiveFixesStyles', subjectiveFixesStyles)
+    if (subjectiveFixesStyles.length > 0) {
+      appendStyleText(document.documentElement, 'subjectiveFixesStyles', subjectiveFixesStyles)
+    }
   }
 
   /**
