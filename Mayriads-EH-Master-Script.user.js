@@ -4040,7 +4040,8 @@
       for (const character of Object.keys(fullWidthReplacements)) {
         filename = filename.replace(new RegExp(character, 'gi'), fullWidthReplacements[character])
       }
-      return filename
+      // Remove leading spaces, which are not accepted by GM.download().
+      return filename.trim()
     }
 
     /**
