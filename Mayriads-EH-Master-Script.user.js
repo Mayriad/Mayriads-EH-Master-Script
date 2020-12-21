@@ -2342,25 +2342,25 @@
         /* vertically center the text in input elements */
         input[type = "text"], input[type = "password"], select, textarea { padding: 2px 3px; }`
 
-      if (document.getElementById('searchbox') === null) {
-        // The vertical spaces around the links at the very bottom, such as "terms of service", are either too small or
-        // too big. They are also inconsistent between gallery view and the other page types. The layout is better in
-        // gallery view so the styles are adjusted to match this page type.
-        subjectiveFixesStyles += `
-          /* use consistent vertical spacing around the links at the very bottom */
-          div.ido + p.ip, div.stuffbox + p.ip, div.stuffbox + script + p.ip { padding: 0 5px 5px 5px;
-            margin-top: -5px; }
-          div.dp { margin-top: 0 !important; }`
+      // The vertical spacing above the links at the very bottom, such as "terms of service", is inconsistent across
+      // page types and often too small. A consistent spacing of 5px is used above these links.
+      subjectiveFixesStyles += `
+        /* gallery list, torrent list and bounty view */
+        div.ido + div.dp, div.ido + script + div.dp, form#form_bounty + script + div.dp { margin-top: 0 !important; }
+        /* gallery view already has the right margin */
+        /* image view */
+        div#i1 + script + script + div.dp {
+          margin-top: ${settings.fitViewerToScreen.featureEnabled ? '5px' : '-1px'} !important; }
+        /* news */
+        div#newsouter + div.dp { margin-top: 5px !important; }`
 
-        // The margins around .stuffbox are also inconsistent between pages under "my home".
-        if (windowUrl.includes('uconfig.php') || windowUrl.includes('mytags')) {
-          subjectiveFixesStyles += `
-            /* use consistent vertical margins around .stuffbox */
-            #outer.stuffbox { margin:10px auto }`
-        }
+      // The margins around .stuffbox are inconsistent across pages under "my home".
+      if (windowUrl.includes('uconfig.php') || windowUrl.includes('mytags')) {
+        subjectiveFixesStyles += `
+          #outer.stuffbox { margin: 10px auto; }`
       }
 
-      // Adjust the general placement of elements slighlty in the thumbnail gallery list display mode for better symmetry.
+      // Slightly adjust the placement of elements in the thumbnail gallery list display mode for better symmetry.
       if (displayMode === 'thumbnail') {
         subjectiveFixesStyles += `
           .gl3t, .gl4t { margin-bottom: 3px; }
