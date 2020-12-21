@@ -1794,10 +1794,10 @@
           `${visibleGalleries} out of ${totalGalleries}`)
       }
 
-      // Fix the vertical position of ponies so that they align with the border of gallery lists.
       // DISABLED: It has been discovered that the adjustment needed differs by pony, browser and gallery list type, and
       // it is too difficult to fix the ponies completely.
       /*
+      // Fix the vertical position of ponies so that they align with the border of gallery lists.
       const pony = document.body.querySelector('img[src ^= "https://ehgt.org/g/ponies/"]')
       if (pony !== null) {
         // Ponies have different sizes and absolute positions, but the vertical gap is always the same, so translateY()
@@ -1891,12 +1891,15 @@
         /* limit relative size of images in posts */
         .postcolor img { max-width: 100% !important; }`
     } else if (/e-hentai\.org\/gallerypopups\.php\?gid=\d+&t=[0-9a-z]+&act=expunge/.test(windowUrl)) {
+      // DISABLED: The redesigned expunged log does not have PM icons so this fix is no longer needed.
+      /*
       // The spacing between each pair of username and PM icon in the expunge log is inconsistent with that in gallery
       // view. "padding-left" of the PM icon is therefore increased by 18px to match the spacing in gallery view, which
       // is created by a 18.34px wide text node.
       designFixesStyles += `
-        /* adjust spacing between username and PM icon */
+        /* adjust spacing between username and PM icon *//*
         img.ygm { filter: brightness(100); padding-left: 20px; }`
+      */
     } else if (windowUrl.includes('exhentai.org/tos.php')) {
       // Redirect the terms of service page in the EX upload interface, because this EX version does not exist.
       window.location.assign(windowUrl.replace('exhentai.org', 'e-hentai.org'))
