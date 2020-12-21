@@ -2373,6 +2373,14 @@
         document.getElementsByName('add_sent')[0].checked = true
         document.getElementsByName('add_tracking')[0].checked = true
       }
+
+      const newMessagesButton = document.querySelector('#userlinks a[href *= "act=Msg"]')
+      if (typeof newMessagesButton !== 'undefined') {
+        const unreadPmCount = newMessagesButton.textContent.match(/\d+/)[0]
+        if (unreadPmCount > 0) {
+          newMessagesButton.style.color = 'red'
+        }
+      }
     }
 
     appendStyleText(document.documentElement, 'subjectiveFixesStyles', subjectiveFixesStyles)
