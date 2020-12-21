@@ -73,7 +73,7 @@ This is just short list to quickly show its features before even the preface bel
 
 4) I am purely self-taught, so I am not a real programmer and may have limited ability to debug telepathically and fulfil feature requests. Real life constraints also make it difficult for me to work on this script. However, I am quite confident in its quality and readability, since I did spend several years and hundreds of hours on it.
 
-5) Although I have been using this script for years, it is too big (25+ features and 5,000+ lines of code) for me to test all usage scenarios on all platforms, browsers, userscript engines and EH pages. I know there are a few errors that the script cannot handle, because I cannot even trigger and see them in the first place. Therefore, there might be bugs and you can always submit a report to me to solve any problem you find.
+5) Although I have been using this script for years, it is too big (5,000+ lines of code) for me to test all usage scenarios on all platforms, browsers, userscript engines and EH pages. I know there are a few errors that the script cannot handle, because I cannot even trigger and see them in the first place. Therefore, there might be bugs and you can always submit a report to me to solve any problem you find.
 
 [⇧ Back to table of contents](#table-of-contents)
 
