@@ -337,6 +337,8 @@
           'again immediately.',
         expiredSessionError: 'An archive download failed, because you purchased this archive a week ago and the ' +
           'expiry of that session stopped the current download. Please try again after one day.',
+        illegalFilenameError: 'A download failed, because the name of the file being downloaded contains ' +
+          'one or more illegal characters not accepted by GM.download(). Please manually download this gallery.',
         // Temporary ban errors:
         heavyLoadError: 'A download is stopped, because you have been warned by the site for loading too many pages ' +
           'and/or images too quickly. Please slow down and wait for a while before continuing with the download.',
@@ -3966,6 +3968,9 @@
                 testDownloadHeaders(galleryDownloadButton, downloadUrl, downloadArchive)
               }
             }
+            break
+          case 'filename must not contain illegal characters':
+            handleError(galleryDownloadButton, 'illegalFilenameError')
         }
       })
     }
@@ -4182,6 +4187,7 @@
         case 'unavailableGalleryError':
         case 'downloadedBytesError':
         case 'expiredSessionError':
+        case 'illegalFilenameError':
           changeGalleryDownloadState(galleryDownloadButton, 'failed', alertMessage)
           shortcuts.downloadAlertsEnabled && alert(alertMessage)
           break
