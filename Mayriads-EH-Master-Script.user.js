@@ -642,7 +642,7 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/e-hentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+    if (/e-hentai\.org\/g\/\d+\/[0-9a-z]+\/\?act=expunge/.test(windowUrl)) {
       scientificDarkStyles += `
         .exp_entry { border-color: #8d8d8d; }`
     } else if (/e-hentai\.org\/mpv\//.test(windowUrl)) {
@@ -973,7 +973,7 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/exhentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+    if (/exhentai\.org\/g\/\d+\/[0-9a-z]+\/\?act=expunge/.test(windowUrl)) {
       scientificLightStyles += `
         .exp_entry { border-color: #B5A4A4; }`
     } else if (/exhentai\.org\/mpv\//.test(windowUrl)) {
@@ -1171,13 +1171,13 @@
       dmsDiv.setAttribute('style', 'position: absolute; top: 29px')
       const pageTableTop = document.getElementsByClassName('ptt')[0]
       pageTableTop.parentNode.insertBefore(dmsDiv, pageTableTop)
-    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       if (xpathSelector(document, './/a[text() = "Get Me Outta Here"]') !== null) {
         pageType = 'content warning'
       } else {
         pageType = 'gallery view'
       }
-    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'MPV view'
     } else if (/e(?:-|x)hentai\.org\/s\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'image view'
