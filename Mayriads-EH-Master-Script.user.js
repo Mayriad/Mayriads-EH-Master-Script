@@ -644,7 +644,9 @@
       /* page-specific */`
     if (/e-hentai\.org\/g\/\d+\/[0-9a-z]+\/\?act=expunge/.test(windowUrl)) {
       scientificDarkStyles += `
-        .exp_entry { border-color: #8d8d8d; }`
+        #gdt.exp_outer { border-color: #000000; }
+        .exp_entry { border-color: #8d8d8d; }
+        .exp_table { border-color: #34353b; }`
     } else if (/e-hentai\.org\/mpv\//.test(windowUrl)) {
       scientificDarkStyles += `
         div.mi0 { background: #43464e; border: 1px solid #34353b; }`
@@ -975,7 +977,9 @@
       /* page-specific */`
     if (/exhentai\.org\/g\/\d+\/[0-9a-z]+\/\?act=expunge/.test(windowUrl)) {
       scientificLightStyles += `
-        .exp_entry { border-color: #B5A4A4; }`
+        #gdt.exp_outer { border-color: #5C0D12; }
+        .exp_entry { border-color: #B5A4A4; }
+        .exp_table { border-color: #5C0D12; }`
     } else if (/exhentai\.org\/mpv\//.test(windowUrl)) {
       scientificLightStyles += `
         div.mi0 { background: #F2EFDF; border: 1px solid #E3E0D1; }`
