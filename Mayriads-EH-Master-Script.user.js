@@ -714,7 +714,7 @@
       #eventpane { background: #4f535b !important; border-color: #000000 !important; }
       /* use consistent round cornors */
       div.ido, .stuffbox { border-radius: 9px; }`
-    if (/e-hentai\.org\/g\/\d+/.test(windowUrl)) {
+    if (/e-hentai\.org\/g\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       // The first two rules replicate the default dark style. The last rule below targets the content warning div when
       // it is there; otherwise it targets the eventpane or .gm, but it will not have an effect beacuse these elements
       // already use this background colour.
@@ -1021,7 +1021,7 @@
     // These styles cover the styles not included in the default light styles in style sheet and style tags, so they
     // cannot be scientifically produced. Some of them also override the scientific styles.
     let customLightStyles = ''
-    if (/exhentai\.org\/g\/\d+/.test(windowUrl)) {
+    if (/exhentai\.org\/g\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       // The first two rules already exist in the light style sheet, but they were removed during the style extraction
       // process. The last rule below targets the content warning div when it is there; otherwise it targets .gm, but it
       // will not have an effect beacuse this element already uses this background colour.
