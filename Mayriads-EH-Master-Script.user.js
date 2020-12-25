@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.1.2
+// @version         2.1.3
 // @author          Mayriad
-// @description     Adds 25+ features to E-Hentai
+// @description     Adds dozens of features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
 // @updateURL       https://openuserjs.org/meta/Mayriad/Mayriads_EH_Master_Script.meta.js
 // @downloadURL     https://openuserjs.org/install/Mayriad/Mayriads_EH_Master_Script.user.js
@@ -52,8 +52,7 @@
 // Userscript download: https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script
 // GitHub repository: https://github.com/Mayriad/Mayriads-EH-Master-Script
 // User manual: https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md
-// Userscript wiki: https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki
-// Discussion thread: https://forums.e-hentai.org/index.php?showtopic=233955
+// Support thread: https://forums.e-hentai.org/index.php?showtopic=233955
 
 /* global GM, alert, XPathResult, MutationObserver, DOMParser, Blob */
 
@@ -65,7 +64,7 @@
    * A callback function that handles a click mouse event.
    *
    * @callback clickEventHandler
-   * @param {MouseEvent} clickEvent - The event object passed to this event handler on click.
+   * @param {MouseEvent} [clickEvent] - The event object passed to this event handler on click.
    */
 
   // Initialisation ----------------------------------------------------------------------------------------------------
@@ -192,7 +191,7 @@
     },
     addJumpButtons: {
       featureEnabled: true,
-      jumpButtonStyle: 'fade-in circular buttons',
+      jumpButtonStyle: 'slide-in rectangular buttons',
       jumpBehaviourStyle: 'smoothly'
     },
     parseExternalLinks: {
@@ -338,6 +337,8 @@
           'again immediately.',
         expiredSessionError: 'An archive download failed, because you purchased this archive a week ago and the ' +
           'expiry of that session stopped the current download. Please try again after one day.',
+        illegalFilenameError: 'A download failed, because the name of the file being downloaded contains ' +
+          'one or more illegal characters not accepted by GM.download(). Please manually download this gallery.',
         // Temporary ban errors:
         heavyLoadError: 'A download is stopped, because you have been warned by the site for loading too many pages ' +
           'and/or images too quickly. Please slow down and wait for a while before continuing with the download.',
@@ -641,7 +642,7 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/e-hentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+    if (/e-hentai\.org\/g\/\d+\/[0-9a-z]+\/\?act=expunge/.test(windowUrl)) {
       scientificDarkStyles += `
         #gdt.exp_outer { border-color: #000000; }
         .exp_entry { border-color: #8d8d8d; }
@@ -715,7 +716,7 @@
       #eventpane { background: #4f535b !important; border-color: #000000 !important; }
       /* use consistent round cornors */
       div.ido, .stuffbox { border-radius: 9px; }`
-    if (/e-hentai\.org\/g\/\d+/.test(windowUrl)) {
+    if (/e-hentai\.org\/g\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       // The first two rules replicate the default dark style. The last rule below targets the content warning div when
       // it is there; otherwise it targets the eventpane or .gm, but it will not have an effect beacuse these elements
       // already use this background colour.
@@ -974,7 +975,7 @@
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
       /* page-specific */`
-    if (/exhentai\.org\/g\/\d+\/(?:[0-9a-z]+)\/\?act=expunge/.test(windowUrl)) {
+    if (/exhentai\.org\/g\/\d+\/[0-9a-z]+\/\?act=expunge/.test(windowUrl)) {
       scientificLightStyles += `
         #gdt.exp_outer { border-color: #5C0D12; }
         .exp_entry { border-color: #B5A4A4; }
@@ -1024,7 +1025,7 @@
     // These styles cover the styles not included in the default light styles in style sheet and style tags, so they
     // cannot be scientifically produced. Some of them also override the scientific styles.
     let customLightStyles = ''
-    if (/exhentai\.org\/g\/\d+/.test(windowUrl)) {
+    if (/exhentai\.org\/g\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       // The first two rules already exist in the light style sheet, but they were removed during the style extraction
       // process. The last rule below targets the content warning div when it is there; otherwise it targets .gm, but it
       // will not have an effect beacuse this element already uses this background colour.
@@ -1174,13 +1175,13 @@
       dmsDiv.setAttribute('style', 'position: absolute; top: 29px')
       const pageTableTop = document.getElementsByClassName('ptt')[0]
       pageTableTop.parentNode.insertBefore(dmsDiv, pageTableTop)
-    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/g\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       if (xpathSelector(document, './/a[text() = "Get Me Outta Here"]') !== null) {
         pageType = 'content warning'
       } else {
         pageType = 'gallery view'
       }
-    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/(?:[0-9a-z]+)/.test(windowUrl)) {
+    } else if (/e(?:-|x)hentai\.org\/mpv\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'MPV view'
     } else if (/e(?:-|x)hentai\.org\/s\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'image view'
@@ -1793,10 +1794,10 @@
           `${visibleGalleries} out of ${totalGalleries}`)
       }
 
-      // Fix the vertical position of ponies so that they align with the border of gallery lists.
       // DISABLED: It has been discovered that the adjustment needed differs by pony, browser and gallery list type, and
       // it is too difficult to fix the ponies completely.
       /*
+      // Fix the vertical position of ponies so that they align with the border of gallery lists.
       const pony = document.body.querySelector('img[src ^= "https://ehgt.org/g/ponies/"]')
       if (pony !== null) {
         // Ponies have different sizes and absolute positions, but the vertical gap is always the same, so translateY()
@@ -1890,12 +1891,15 @@
         /* limit relative size of images in posts */
         .postcolor img { max-width: 100% !important; }`
     } else if (/e-hentai\.org\/gallerypopups\.php\?gid=\d+&t=[0-9a-z]+&act=expunge/.test(windowUrl)) {
+      // DISABLED: The redesigned expunged log does not have PM icons so this fix is no longer needed.
+      /*
       // The spacing between each pair of username and PM icon in the expunge log is inconsistent with that in gallery
       // view. "padding-left" of the PM icon is therefore increased by 18px to match the spacing in gallery view, which
       // is created by a 18.34px wide text node.
       designFixesStyles += `
-        /* adjust spacing between username and PM icon */
+        /* adjust spacing between username and PM icon *//*
         img.ygm { filter: brightness(100); padding-left: 20px; }`
+      */
     } else if (windowUrl.includes('exhentai.org/tos.php')) {
       // Redirect the terms of service page in the EX upload interface, because this EX version does not exist.
       window.location.assign(windowUrl.replace('exhentai.org', 'e-hentai.org'))
@@ -2001,12 +2005,17 @@
      * @param {Document} documentReceived - The parsed document returned by the caller XHR.
      */
     function updateUnreadPmCount (documentReceived) {
-      const unreadPmCount = documentReceived.querySelector('#userlinks a[href *= "act=Msg"]')
+      const unreadCountButton = xpathSelector(document, './/a[text() = "PM: –"]')
+      const newMessagesButton = documentReceived.querySelector('#userlinks a[href *= "act=Msg"]')
+
       // Check whether this inbox link exists and hence whether the user is logged in; then update the link if
       // the user is logged in.
-      if (unreadPmCount !== null) {
-        xpathSelector(document, './/a[text() = "PM: –"]').textContent = 'PM: ' +
-          unreadPmCount.textContent.match(/\d+/)[0]
+      if (newMessagesButton !== null) {
+        const unreadPmCount = newMessagesButton.textContent.match(/\d+/)[0]
+        unreadCountButton.textContent = 'PM: ' + unreadPmCount
+        if (unreadPmCount > 0) {
+          unreadCountButton.style.color = 'red'
+        }
       }
     }
 
@@ -2018,11 +2027,15 @@
     function updateUnreadMmCount (documentReceived) {
       const unreadCountButton = xpathSelector(document, './/a[text() = "MM: –"]')
 
-      if (documentReceived.getElementById('mmail_nnm') !== null) {
+      if (documentReceived.getElementById('mmail_outer') === null) {
+        // Do nothing because the MM inbox page was not received, likely because the user is in a battle.
+      } else if (documentReceived.getElementById('mmail_nnm') !== null) {
+        // Check for the "no new mail" indicator.
         unreadCountButton.textContent = 'MM: 0'
       } else {
         // Only the rows that represent actual MMs will have an onclick property.
         unreadCountButton.textContent = 'MM: ' + documentReceived.querySelectorAll('#mmail_list tr[onclick]').length
+        unreadCountButton.style.color = 'red'
       }
     }
 
@@ -2064,6 +2077,9 @@
           }
         }
         unreadCountButton.textContent = `+K: ${unreadKarmaCount}`
+        if (unreadKarmaCount > 0) {
+          unreadCountButton.style.color = 'red'
+        }
       }
     }
 
@@ -2134,8 +2150,10 @@
       document.getElementById('gd5').appendChild(paragraph)
     }
 
-    let forumLinksStyles = `
-      div#gd4 { width: 570px; }
+    // max-height: 100% is needed on div#gd4 below to limit the height of the tagging area to prevent its side borders
+    // from overflowing when a tag is selected.
+    let vigilanteLinksStyles = `
+      div#gd4 { width: 570px; max-height: 100%; }
       #tagmenu_new { width: auto !important; }
       div#gd5 { width: 160px; margin-top: -5px; }
       .gsp { padding-top: 12px; }`
@@ -2143,11 +2161,11 @@
     // When there is an advertisement, there will be a #spa element between #gd3 and #gd4 that can take at least 600 x
     // 60px space. The "report gallery" link is also too close to the advertisement, and the fix below is a design fix.
     if (document.getElementById('spa') !== null) {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2, .g3 { padding-bottom: 6px; }
       .g3 { padding-top: 6px }`
     } else {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2, .g3 { padding-bottom: 8px; }`
     }
 
@@ -2155,19 +2173,19 @@
     // sibling anchors in the ratio of 1:1.
     if ((windowUrl.includes('e-hentai.org') && settings.applyDarkTheme.featureEnabled) ||
       (windowUrl.includes('exhentai.org') && !settings.applyLightTheme.featureEnabled)) {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2.forum > a { color: #96989C; }`
     } else {
-      forumLinksStyles += `
+      vigilanteLinksStyles += `
       .g2.forum > a { color: #A57C78; }`
     }
-    appendStyleText(document.head, 'forumLinksStyles', forumLinksStyles)
+    appendStyleText(document.head, 'vigilanteLinksStyles', vigilanteLinksStyles)
 
     // These links are ordered by thread size.
     addLinkItem(' Tagging Assistance', 'https://forums.e-hentai.org/index.php?showtopic=184081', 'g2 forum gsp')
     addLinkItem(' Tag Namespacing', 'https://forums.e-hentai.org/index.php?showtopic=199295', 'g2 forum')
     addLinkItem(' Renaming & Reclassing', 'https://forums.e-hentai.org/index.php?showtopic=227712', 'g2 forum')
-    addLinkItem(' Expunge Assistance', 'https://forums.e-hentai.org/index.php?showtopic=227706', 'g2 forum')
+    addLinkItem(' Expunge Assistance', 'https://forums.e-hentai.org/index.php?showtopic=242797', 'g2 forum')
     addLinkItem(' Comment Cleanup', 'https://forums.e-hentai.org/index.php?showtopic=217762', 'g2 forum')
   }
 
@@ -2319,35 +2337,35 @@
    * Applies subjective style fixes to make some elements look better and more consistent in general.
    */
   const applySubjectiveFixes = function () {
-    let subjectiveFixesStyles
+    let subjectiveFixesStyles = ''
 
     if (pageType !== 'EH forums' && pageType !== 'HentaiVerse') {
       // Adjust the input elements everywhere.
-      subjectiveFixesStyles = `
+      subjectiveFixesStyles += `
         /* use consistent 1px border */
         input[type = "button"], input[type = "submit"] { border-width: 1px; }
         /* vertically center the text in input elements */
         input[type = "text"], input[type = "password"], select, textarea { padding: 2px 3px; }`
 
-      if (document.getElementById('searchbox') === null) {
-        // The vertical spaces around the links at the very bottom, such as "terms of service", are either too small or
-        // too big. They are also inconsistent between gallery view and the other page types. The layout is better in
-        // gallery view so the styles are adjusted to match this page type.
-        subjectiveFixesStyles += `
-          /* use consistent vertical spacing around the links at the very bottom */
-          div.ido + p.ip, div.stuffbox + p.ip, div.stuffbox + script + p.ip { padding: 0 5px 5px 5px;
-            margin-top: -5px; }
-          div.dp { margin-top: 0 !important; }`
+      // The vertical spacing above the links at the very bottom, such as "terms of service", is inconsistent across
+      // page types and often too small. A consistent spacing of 5px is used above these links.
+      subjectiveFixesStyles += `
+        /* gallery list, torrent list and bounty view */
+        div.ido + div.dp, div.ido + script + div.dp, form#form_bounty + script + div.dp { margin-top: 0 !important; }
+        /* gallery view already has the right margin */
+        /* image view */
+        div#i1 + script + script + div.dp {
+          margin-top: ${settings.fitViewerToScreen.featureEnabled ? '5px' : '-1px'} !important; }
+        /* news */
+        div#newsouter + div.dp { margin-top: 5px !important; }`
 
-        // The margins around .stuffbox are also inconsistent between pages under "my home".
-        if (windowUrl.includes('uconfig.php') || windowUrl.includes('mytags')) {
-          subjectiveFixesStyles += `
-            /* use consistent vertical margins around .stuffbox */
-            #outer.stuffbox { margin:10px auto }`
-        }
+      // The margins around .stuffbox are inconsistent across pages under "my home".
+      if (windowUrl.includes('uconfig.php') || windowUrl.includes('mytags')) {
+        subjectiveFixesStyles += `
+          #outer.stuffbox { margin: 10px auto; }`
       }
 
-      // Adjust the general placement of elements slighlty in the thumbnail gallery list display mode for better symmetry.
+      // Slightly adjust the placement of elements in the thumbnail gallery list display mode for better symmetry.
       if (displayMode === 'thumbnail') {
         subjectiveFixesStyles += `
           .gl3t, .gl4t { margin-bottom: 3px; }
@@ -2355,16 +2373,32 @@
       }
     }
 
-    if (pageType === 'EH forums') {
+    if (pageType === 'gallery view') {
+      // Realign and fix inconsistent tag input and button. This is partially caused by the input element fix above.
+      subjectiveFixesStyles += `
+        #newtagfield { line-height: 20px; }
+        #newtagbutton { width: 100px; max-width: calc(570px - 10px - 4px - 480px - 2px - 2px - 2px);
+          font-size: 10pt; padding: 2px 3px; }`
+    } else if (pageType === 'EH forums') {
       // Tick the two checkboxes for new forum PMs to add sent PMs to sent items and track these messages by default.
       if (/forums\.e-hentai\.org\/index\.php\?(?:act=Msg(?:&CODE=0?4)?|CODE=0?4&act=Msg)/.test(windowUrl)) {
         // URL is https://forums.e-hentai.org/index.php?act=msg when there is an error sending PM.
         document.getElementsByName('add_sent')[0].checked = true
         document.getElementsByName('add_tracking')[0].checked = true
       }
+
+      const newMessagesButton = document.querySelector('#userlinks a[href *= "act=Msg"]')
+      if (typeof newMessagesButton !== 'undefined') {
+        const unreadPmCount = newMessagesButton.textContent.match(/\d+/)[0]
+        if (unreadPmCount > 0) {
+          newMessagesButton.style.color = 'red'
+        }
+      }
     }
 
-    appendStyleText(document.documentElement, 'subjectiveFixesStyles', subjectiveFixesStyles)
+    if (subjectiveFixesStyles.length > 0) {
+      appendStyleText(document.documentElement, 'subjectiveFixesStyles', subjectiveFixesStyles)
+    }
   }
 
   /**
@@ -2721,7 +2755,7 @@
       extendWithAnchor(scriptInfoRow, undefined, 'User Manual',
         'https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
-      extendWithAnchor(scriptInfoRow, undefined, 'Discussion Thread',
+      extendWithAnchor(scriptInfoRow, undefined, 'Support Thread - Ask me if you need help!',
         'https://forums.e-hentai.org/index.php?showtopic=233955', true)
 
       // Sitewide features ---------------------------------------------------------------------------------------------
@@ -2940,7 +2974,7 @@
       extendWithCheckBox(appendRow(controlPanel, 2), 'useAutomatedDownloads-appendIdentifiersEnabled',
         settings.useAutomatedDownloads.appendIdentifiersEnabled, 'Append identifiers to the filename of every ' +
         'archive downloaded by this feature so that other programs can use these to accurately retrieve metadata (' +
-        'cannot work on some browsers e.g., Chromium)')
+        'cannot work on some browsers like Google Chrome)')
 
       const pageDownloadEnabledRow = extendWithCheckBox(appendRow(controlPanel, 1),
         'useAutomatedDownloads-pageDownloadEnabled', settings.useAutomatedDownloads.pageDownloadEnabled, 'Enable the ' +
@@ -3060,10 +3094,10 @@
       extendWithCheckBox(appendRow(controlPanel, 0), 'addGuideLinks-featureEnabled',
         settings.addGuideLinks.featureEnabled, 'Add links to gallery upload guides to the upload management bar')
 
-      // Script setting ------------------------------------------------------------------------------------------------
+      // Script settings -----------------------------------------------------------------------------------------------
 
       controlPanel.insertRow(-1)
-      extendWithStrongText(appendRow(controlPanel, 0), undefined, 'Script setting')
+      extendWithStrongText(appendRow(controlPanel, 0), undefined, 'Script settings')
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'script-filterButtonEnabled',
         settings.script.filterButtonEnabled, 'Show a button next to the gallery list display mode selector to easily ' +
@@ -3099,7 +3133,7 @@
     }
 
     /**
-     * Helps createControlPanel() to append a anchor element to a host element as a child node.
+     * Helps createControlPanel() to append an anchor element to a host element as a child node.
      *
      * @param {HTMLElement} host - The element under which the anchor element will be added as a child node.
      * @param {string} [id] - An optional id that can be assigned to the anchor element.
@@ -3751,14 +3785,15 @@
         onload: function (response) {
           const documentReceived = domParser.parseFromString(response.responseText, 'text/html')
           if (response.status === 200) {
-            // Some errors have status code 200, so it is safer to check for known types of errors here as well.
-            // "unknownError" here means no error has been found. These errors include "unavailableTorrentError", and
-            // presumably "unavailableArchiverError" as well.
-            if (checkErrorMessage(documentReceived.body.textContent) === 'unknownError') {
-              onloadFunction(galleryDownloadButton, documentReceived, response)
-            } else {
+            // At least "unavailableTorrentError" comes with status code 200, so a check is needed for the specific
+            // onloadFunction. My old comments say "unavailableArchiverError" might also come with status code 200, but
+            // this cannot be confirmed these days and is thus not handled below.
+            if (onloadFunction.name === 'downloadTorrent' &&
+              checkErrorMessage(documentReceived.body.textContent) === 'unavailableTorrentError') {
               handleError(galleryDownloadButton, checkErrorMessage(documentReceived.body.textContent),
                 documentReceived.documentElement.outerHTML)
+            } else {
+              onloadFunction(galleryDownloadButton, documentReceived, response)
             }
           } else if (response.status === 404) {
             handleError(galleryDownloadButton, 'unavailableGalleryError')
@@ -3946,6 +3981,9 @@
                 testDownloadHeaders(galleryDownloadButton, downloadUrl, downloadArchive)
               }
             }
+            break
+          case 'filename must not contain illegal characters':
+            handleError(galleryDownloadButton, 'illegalFilenameError')
         }
       })
     }
@@ -4015,7 +4053,8 @@
       for (const character of Object.keys(fullWidthReplacements)) {
         filename = filename.replace(new RegExp(character, 'gi'), fullWidthReplacements[character])
       }
-      return filename
+      // Remove leading spaces, which are not accepted by GM.download().
+      return filename.trim()
     }
 
     /**
@@ -4162,6 +4201,7 @@
         case 'unavailableGalleryError':
         case 'downloadedBytesError':
         case 'expiredSessionError':
+        case 'illegalFilenameError':
           changeGalleryDownloadState(galleryDownloadButton, 'failed', alertMessage)
           shortcuts.downloadAlertsEnabled && alert(alertMessage)
           break
@@ -4838,13 +4878,13 @@
           box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); font-size: 6vh !important; line-height: 6vh; }`
     } else if (settings.addJumpButtons.jumpButtonStyle === 'slide-in rectangular buttons') {
       jumpButtonStyles = `
-        #jumpButtonHost { height: 20vh; width: 20vh; border-radius: 3px; position: fixed; right: -12vh; bottom: 2vh;
-          z-index: 3; box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); transition: 0.3s; }
-        #jumpButtonHost:hover { right: 2vh; transition: 0.3s; }
-        #jumpToTopButton, #jumpToBottomButton { height: 10vh; width: 20vh; margin: auto; font-size: 6vh !important;
+        #jumpButtonHost { height: 20vh; width: 10vw; position: fixed; right: -8.5vw; bottom: 2vh; z-index: 3;
+          box-shadow: 0 0 1vh 0 rgba(0, 0, 0, 0.6); transition: 0.3s; }
+        #jumpButtonHost:hover { right: -3px; transition: 0.3s; }
+        #jumpToTopButton, #jumpToBottomButton { height: 10vh; width: 10vw; margin: auto; font-size: 6vh !important;
           line-height: 6vh; }
-        #jumpToTopButton { border-radius: 3px 3px 0 0; }
-        #jumpToBottomButton { border-radius: 0 0 3px 3px; }`
+        #jumpToTopButton { border-radius: 3px 0 0 0; }
+        #jumpToBottomButton { border-radius: 0 0 0 3px; }`
     }
 
     const jumpBehaviour = settings.addJumpButtons.jumpBehaviourStyle === 'smoothly' ? 'smooth' : 'auto'
