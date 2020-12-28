@@ -2376,10 +2376,14 @@
 
     if (pageType === 'gallery view') {
       // Realign and fix inconsistent tag input and button. This is partially caused by the input element fix above.
+      const buttonWidth = (settings.addVigilanteLinks.featureEnabled ? 570 : 580) - 10 - 4 - 480 - 2 - 2 - 2
       subjectiveFixesStyles += `
         #newtagfield { line-height: 20px; }
-        #newtagbutton { width: 100px; max-width: calc(570px - 10px - 4px - 480px - 2px - 2px - 2px);
-          font-size: 10pt; padding: 2px 3px; }`
+        #newtagbutton { width: ${buttonWidth}px; font-size: 10pt; padding: 2px 3px; }`
+      if (!settings.addVigilanteLinks.featureEnabled) {
+        subjectiveFixesStyles += `
+          div#tagmenu_new > form { width: max-content; }`
+      }
     } else if (pageType === 'EH forums') {
       // Tick the two checkboxes for new forum PMs to add sent PMs to sent items and track these messages by default.
       if (/forums\.e-hentai\.org\/index\.php\?(?:act=Msg(?:&CODE=0?4)?|CODE=0?4&act=Msg)/.test(windowUrl)) {
