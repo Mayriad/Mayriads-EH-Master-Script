@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.1.3
+// @version         2.1.4
 // @author          Mayriad
 // @description     Adds dozens of features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -2156,7 +2156,8 @@
       div#gd4 { width: 570px; max-height: 100%; }
       #tagmenu_new { width: auto !important; }
       div#gd5 { width: 160px; margin-top: -5px; }
-      .gsp { padding-top: 12px; }`
+      .gsp { padding-top: 12px; }
+      div#gwrd { top: -35px; }`
 
     // When there is an advertisement, there will be a #spa element between #gd3 and #gd4 that can take at least 600 x
     // 60px space. The "report gallery" link is also too close to the advertisement, and the fix below is a design fix.
