@@ -1818,10 +1818,11 @@
       // The title and style sheet are both in the body on this page. That is not appropriate, but they do not really
       // need to be fixed, so they are not moved. Also, this page seems unnecessarily wide, but such a wide page may be
       // (eventually) needed for users with many years of statistics to show, and is hence not changed.
-    } else if (pageType === 'upload management' || windowUrl.includes('repo.e-hentai.org')) {
-      // Recreate the navigation bar using the new style on these pages, which still use the old navigation bar. They
-      // use the old 0338 style sheet, so the new styles from 0347 are added to support the recreated bar. Swapping
-      // the style sheet makes little difference, so it is not worth a total reflow.
+    } else if (pageType === 'upload management') {
+      // Recreate the navigation bar using the new style on this type of page, which still use the old navigation bar.
+      // It uses the old 0338 style sheet, so the new styles from 0347 are added to support the recreated bar. Swapping
+      // the style sheet makes little difference, so it is not worth a total reflow. The page "post new bounty" used to
+      // have this problem as well, but the site has fixed it to use the new bar and 0348 style sheet.
       designFixesStyles += `
         /* navigation bar (v0347) */
         #nb { margin: auto; padding: 4px 10px 0; text-align: center; font-size:10pt; font-weight: bold;
@@ -1842,7 +1843,7 @@
       addNavigationButton(newBar, 'Popular', `https://${site}/popular`)
       addNavigationButton(newBar, 'Torrents', `https://${site}/torrents.php`)
       addNavigationButton(newBar, 'Favorites', `https://${site}/favorites.php`)
-      if (windowUrl.includes('upload.e-hentai.org') || windowUrl.includes('repo.e-hentai.org')) {
+      if (windowUrl.includes('upload.e-hentai.org')) {
         addNavigationButton(newBar, 'My Home', 'https://e-hentai.org/home.php')
         addNavigationButton(newBar, 'My Uploads', 'https://upload.e-hentai.org/manage.php')
         addNavigationButton(newBar, 'Toplists', 'https://e-hentai.org/toplist.php')
