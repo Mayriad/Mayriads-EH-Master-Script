@@ -2185,10 +2185,10 @@
 
     // These links are ordered by thread size.
     addLinkItem(' Tagging Assistance', 'https://forums.e-hentai.org/index.php?showtopic=184081', 'g2 forum gsp')
-    addLinkItem(' Tag Namespacing', 'https://forums.e-hentai.org/index.php?showtopic=199295', 'g2 forum')
+    addLinkItem(' Tag Namespacing', 'https://forums.e-hentai.org/index.php?showtopic=246656', 'g2 forum')
     addLinkItem(' Renaming & Reclassing', 'https://forums.e-hentai.org/index.php?showtopic=227712', 'g2 forum')
     addLinkItem(' Expunge Assistance', 'https://forums.e-hentai.org/index.php?showtopic=242797', 'g2 forum')
-    addLinkItem(' Comment Cleanup', 'https://forums.e-hentai.org/index.php?showtopic=217762', 'g2 forum')
+    addLinkItem(' Comment Cleanup', 'https://forums.e-hentai.org/index.php?showtopic=247567', 'g2 forum')
   }
 
   /**
