@@ -6,6 +6,8 @@
 
 Adds dozens of features to E-Hentai.
 
+This project is still very much alive. I have been terribly busy this year and I am also prioritising the development of another script, so I have not had the time to work on this. Eventually I will return to this to add new stuff once the other script is finished.
+
 ## Table of contents
 
 - [Features](#features)
