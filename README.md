@@ -2,11 +2,9 @@
 
 [![GitHub Release](https://img.shields.io/github/release/Mayriad/Mayriads-EH-Master-Script)](https://github.com/Mayriad/Mayriads-EH-Master-Script/releases) [![Github Release Date](https://img.shields.io/github/release-date/Mayriad/Mayriads-EH-Master-Script)](https://github.com/Mayriad/Mayriads-EH-Master-Script/releases) [![Github License](https://img.shields.io/github/license/Mayriad/Mayriads-EH-Master-Script)](https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/LICENSE) [![Code Style](https://img.shields.io/badge/code_style-standard-brightgreen)](https://standardjs.com/)
 
-[Userscript Download](https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script) | [Userscript Wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki) | [Support Thread - Ask me if you need help!](https://forums.e-hentai.org/index.php?showtopic=233955)
+[Userscript Download](https://openuserjs.org/scripts/Mayriad/Mayriads_EH_Master_Script) | [Userscript Wiki](https://github.com/Mayriad/Mayriads-EH-Master-Script/wiki) | [Support Thread](https://forums.e-hentai.org/index.php?showtopic=233955)
 
 Adds dozens of features to E-Hentai.
-
-This project is still very much alive. I have been terribly busy this year and I am also prioritising the development of another script, so I have not had the time to work on this. Eventually I will return to this to add new stuff once the other script is finished.
 
 ## Table of contents
 
