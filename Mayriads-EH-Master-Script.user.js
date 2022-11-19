@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.2.0
+// @version         2.2.1
 // @author          Mayriad
 // @description     Adds dozens of features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -20,15 +20,10 @@
 // @connect         hentaiverse.org
 // @connect         *
 // @run-at          document-start
-// @grant           GM.setValue
-// @grant           GM.getValue
-// @grant           GM.xmlHttpRequest
-// @grant           GM.download
-// @grant           GM.info
 // @grant           GM_setValue
 // @grant           GM_getValue
 // @grant           GM_xmlhttpRequest
-// @grant           GM_info
+// @grant           GM_download
 // @copyright       2015-2022, Mayriad (https://github.com/Mayriad)
 // @license         GPL-3.0-or-later; https://www.gnu.org/licenses/gpl-3.0-standalone.html
 // ==/UserScript==
