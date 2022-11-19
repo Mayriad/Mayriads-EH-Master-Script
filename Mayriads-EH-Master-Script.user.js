@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.1.3
+// @version         2.2.0
 // @author          Mayriad
 // @description     Adds dozens of features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -11,7 +11,7 @@
 // @match           https://e-hentai.org/*
 // @match           https://exhentai.org/*
 // @match           https://repo.e-hentai.org/*
-// @match           https://upload.e-hentai.org/*
+// @match           https://upld.e-hentai.org/*
 // @match           https://forums.e-hentai.org/*
 // @match           https://hentaiverse.org/*
 // @connect         self
@@ -29,13 +29,13 @@
 // @grant           GM_getValue
 // @grant           GM_xmlhttpRequest
 // @grant           GM_info
-// @copyright       2015-2020, Mayriad (https://github.com/Mayriad)
+// @copyright       2015-2022, Mayriad (https://github.com/Mayriad)
 // @license         GPL-3.0-or-later; https://www.gnu.org/licenses/gpl-3.0-standalone.html
 // ==/UserScript==
 
 /**
  * @author Mayriad
- * @copyright 2015-2020 Mayriad
+ * @copyright 2015-2022 Mayriad
  * @license GNU General Public License v3.0 or later
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -520,8 +520,8 @@
       return
     }
 
-    // These are the colour differences programmatically extracted from two 0347 style sheets. They do not cover
-    // everything because there are unique pages, inline styles and style tags.
+    // These are the colour differences programmatically extracted from two 0360 style sheets. They do not cover
+    // everything because there are unique pages, inline styles and head styles.
     let scientificDarkStyles = `
       body { color: #f1f1f1; background: #34353b }
       a { color: #DDDDDD }
@@ -529,16 +529,18 @@
       /* input */
       input, select, option, optgroup, textarea { color: #f1f1f1; background-color: #34353b }
       input[type = "button"], input[type = "submit"] { border: 2px solid #8d8d8d }
-      input[type = "button"]:enabled:hover, input[type = "submit"]:enabled:hover, input[type = "button"]:enabled:focus,
-        input[type = "submit"]:enabled:focus { background-color: #43464e !important; border-color: #aeaeae !important }
+      select { border: 2px solid #8d8d8d }
+      input[type = "button"]:enabled:hover, input[type = "submit"]:enabled:hover, select:enabled:hover,
+        input[type = "button"]:enabled:focus, input[type = "submit"]:enabled:focus, select:enabled:focus
+        { background-color: #43464e !important; border-color: #aeaeae !important }
       input[type = "button"]:enabled:active, input[type = "submit"]:enabled:active
         { background: radial-gradient(#1a1a1a, #43464e) !important; border-color: #c3c3c3 !important }
-      input[type = "text"], input[type = "password"], select, textarea { border: 1px solid #8d8d8d }
-      input:disabled, select:disabled, textarea:disabled { color: #f1f1f1; -webkit-text-fill-color: #f1f1f1 }
-      input::placeholder, textarea::placeholder { color: #f1f1f1; -webkit-text-fill-color: #f1f1f1 }
-      input[type = "text"]:enabled:hover, input[type = "password"]:enabled:hover, select:enabled:hover,
-        textarea:enabled:hover, input[type = "text"]:enabled:focus, input[type = "password"]:enabled:focus,
-        select:enabled:focus, textarea:enabled:focus { background-color: #43464e }
+      input[type = "text"], input[type = "date"], input[type = "password"], textarea { border: 2px solid #8d8d8d }
+      input:disabled, select:disabled, textarea:disabled { color: #8a8a8a; -webkit-text-fill-color: #8a8a8a }
+      input::placeholder, textarea::placeholder { color: #8a8a8a; -webkit-text-fill-color: #8a8a8a }
+      input[type = "text"]:enabled:hover, input[type = "date"]:enabled:hover, input[type = "password"]:enabled:hover,
+        textarea:enabled:hover, input[type = "text"]:enabled:focus, input[type = "date"]:enabled:focus,
+        input[type = "password"]:enabled:focus, textarea:enabled:focus { background-color: #43464e }
       input[type = "file"] { border: 2px solid #8d8d8d }
       .lc:hover input:enabled ~ span, .lr:hover input:enabled ~ span, .lc input:enabled:focus ~ span,
         .lr input:enabled:focus ~ span { background-color: #43464e !important; border-color: #aeaeae !important }
@@ -553,6 +555,9 @@
       /* rating */
       img.th { border: 1px solid #000000 }
       div.ido { background: #4f535b; border: 1px solid #000000 }
+      /* index search/navigation */
+      .searchwarn { color: #FB7878 }
+      .searchnav div > span { color: #777 }
       /* shared table stuff */
       div.itg { border-top: 2px ridge #3c3c3c; border-bottom: 2px ridge #3c3c3c }
       table.itg { border: 2px ridge #3c3c3c }
@@ -571,7 +576,6 @@
       div.ds { border: 1px solid #000000; background: #4f535b }
       /* index */
       div.idi { border: 2px ridge #3c3c3c }
-      div#iw { color: #FF3333 }
       /* gallery list */
       a:visited .glink, a:active .glink { color: #BBBBBB }
       a:hover .glink { color: #EEEEEE }
@@ -617,13 +621,13 @@
       span.tdn { color: #FF3333 }
       div.gm { background: #4f535b; border: 1px solid #000000 }
       div#gmid { background: #4f535b }
-      div#gright { background: #4f535b }
       div#gd1 div { border: 1px solid #000000 }
       div#gd2 { background: #4f535b }
       h1#gj { color: #b8b8b8; border-bottom: 1px solid #000000 }
       div#gd4 { border-left: 1px solid #000000; border-right: 1px solid #000000 }
       div#gdt { background: #4f535b; border: 1px solid #000000 }
       div#gdt img { border: 1px solid #000000 }
+      .g3 a { color: #FF4A4A }
       div.gt { border: 1px solid #989898; background: #4f535b }
       div.gtl { border: 1px dashed #8c8c8c; background: #4f535b }
       div.gtw { border: 1px dotted #8c8c8c; background: #4f535b }
@@ -637,7 +641,7 @@
       /* image pages */
       div.sni { background: #4f535b; border: 1px solid #000000 }`
 
-    // These are extracted from the style tags in document.head.
+    // These are extracted from the style tags in document.head, including the first checkbox fix.
     scientificDarkStyles += `
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
@@ -679,8 +683,8 @@
         td#d { border-right: 1px dashed #f1f1f1; }
         div[id ^= "cell_"] { background: #5f636b; border: 1px solid #34353b; }`
       // The upload list also has styles in document.head, but they are the same on both sides. There are only two
-      // effective colour properties, but they only fit the light theme, so a fix is added to applyDesignFixes() for the
-      // dark theme.
+      // effective colour properties, but they only fit the light theme, so a fix is added to the design fixes feature
+      // for the dark theme.
     } else if (windowUrl.includes('bounty.php?bid=')) {
       scientificDarkStyles += `
         span.scr { color: red; }
@@ -770,14 +774,19 @@
       customDarkStyles += `
         #lb + div + div { border-radius: 9px; background: #4f535b !important; border-color: #000000 !important; }
         #lb + div + div th { border-bottom-color: #000000 !important; };`
+    } else if (windowUrl === 'https://e-hentai.org/bounty.php') {
+      // Colour the page number arrow when it is not clickable.
+      customDarkStyles += `
+        td.ptdd, td.ptdd:hover { color: #73767c !important; }`
+    } else if (windowUrl.includes('bounty.php?act=top')) {
+      // Colour the arrow for the previous page when it is not clickable on the three bounty toplists. The page number
+      // has no limit so only one arrow needs a fix.
+      customDarkStyles += `
+        div#p > span { color: #73767c; }`
     } else if (windowUrl.includes('bounty.php?bid=')) {
       // Fix the colour of the PM icon.
       customDarkStyles += `
         img.ygm { filter: brightness(100); }`
-    } else if (windowUrl.includes('bounty.php?act=top')) {
-      // Fix the page number arrow when it is not clickable.
-      customDarkStyles += `
-        div#p > span { color: #73767c; }`
     } else if (windowUrl.includes('bounty_post.php')) {
       customDarkStyles += `
         div.d4, div.d5 { border-color: #000000; }
@@ -820,7 +829,7 @@
      */
     const addStylesAtInteractive = function () {
       // The existing "displayMode" variable is not used due to its asynchronous assignment.
-      const displayMode = document.body.querySelector('#dms option[selected = "selected"]')
+      const displayMode = document.querySelector('.searchnav option[selected = "selected"]')
       if (displayMode !== null && displayMode.textContent.toLowerCase() === 'thumbnail') {
         // These are extracted from the style tag in document.head of the search index in the thumbnail display mode.
         scientificDarkStylesElement.textContent += `
@@ -853,8 +862,8 @@
       return
     }
 
-    // These are the colour differences programmatically extracted from two 0347 style sheets. They do not cover
-    // everything because there are inline styles and style tags.
+    // These are the colour differences programmatically extracted from two 0360 style sheets. They do not cover
+    // everything because there are inline styles and head styles.
     let scientificLightStyles = `
       body { color: #5C0D11; background: #E3E0D1 }
       a { color: #5C0D11 }
@@ -862,16 +871,18 @@
       /* input */
       input, select, option, optgroup, textarea { color: #5C0D12; background-color: #EDEADA }
       input[type = "button"], input[type = "submit"] { border: 2px solid #B5A4A4 }
-      input[type = "button"]:enabled:hover, input[type = "submit"]:enabled:hover, input[type = "button"]:enabled:focus,
-        input[type = "submit"]:enabled:focus { background-color: #F3F0E0 !important; border-color: #977273 !important }
+      select { border: 2px solid #B5A4A4 }
+      input[type = "button"]:enabled:hover, input[type = "submit"]:enabled:hover, select:enabled:hover,
+        input[type = "button"]:enabled:focus, input[type = "submit"]:enabled:focus, select:enabled:focus
+        { background-color: #F3F0E0 !important; border-color: #977273 !important }
       input[type = "button"]:enabled:active, input[type = "submit"]:enabled:active
         { background: radial-gradient(#D7D3C2, #F3F0E0) !important; border-color: #5C0D12 !important }
-      input[type = "text"], input[type = "password"], select, textarea { border: 1px solid #B5A4A4 }
+      input[type = "text"], input[type = "date"], input[type = "password"], textarea { border: 2px solid #B5A4A4 }
       input:disabled, select:disabled, textarea:disabled { color: #C2A8A4; -webkit-text-fill-color: #C2A8A4 }
       input::placeholder, textarea::placeholder { color: #9F746F; -webkit-text-fill-color: #9F746F }
-      input[type = "text"]:enabled:hover, input[type = "password"]:enabled:hover, select:enabled:hover,
-        textarea:enabled:hover, input[type = "text"]:enabled:focus, input[type = "password"]:enabled:focus,
-        select:enabled:focus, textarea:enabled:focus { background-color: #F3F0E0 }
+      input[type = "text"]:enabled:hover, input[type = "date"]:enabled:hover, input[type = "password"]:enabled:hover,
+        textarea:enabled:hover, input[type = "text"]:enabled:focus, input[type = "date"]:enabled:focus,
+        input[type = "password"]:enabled:focus, textarea:enabled:focus { background-color: #F3F0E0 }
       input[type = "file"] { border: 2px solid #B5A4A4 }
       .lc:hover input:enabled ~ span, .lr:hover input:enabled ~ span, .lc input:enabled:focus ~ span,
         .lr input:enabled:focus ~ span { background-color: #F3F0E0 !important; border-color: #977273 !important }
@@ -886,6 +897,9 @@
       /* rating */
       img.th { border: 1px solid #5C0D12 }
       div.ido { background: #EDEBDF; border: 1px solid #5C0D12 }
+      /* index search/navigation */
+      .searchwarn { color: #D71F1F }
+      .searchnav div > span { color: #CCCCCC }
       /* shared table stuff */
       div.itg { border-top: 2px ridge #5C0D12; border-bottom: 2px ridge #5C0D12 }
       table.itg { border: 2px ridge #5C0D12 }
@@ -904,7 +918,6 @@
       div.ds { border: 1px solid #5C0D12; background: #EDEBDF }
       /* index */
       div.idi { border: 2px ridge #5C0D12 }
-      div#iw { color: #FF0000 }
       /* gallery list */
       a:visited .glink, a:active .glink { color: #8F6063 }
       a:hover .glink { color: #8F4701 }
@@ -950,13 +963,13 @@
       span.tdn { color: red }
       div.gm { background: #EDEBDF; border: 1px solid #5C0D12 }
       div#gmid { background: #EDEBDF }
-      div#gright { background: #EDEBDF }
       div#gd1 div { border: 1px solid #5C0D12 }
       div#gd2 { background: #EDEBDF }
       h1#gj { color: #9F8687; border-bottom: 1px solid #5C0D12 }
       div#gd4 { border-left: 1px solid #5C0D12; border-right: 1px solid #5C0D12 }
       div#gdt { background: #EDEBDF; border: 1px solid #5C0D12 }
       div#gdt img { border: 1px solid #5C0D12 }
+      .g3 a { color: #FF0000 }
       div.gt { border: 1px solid #806769; background: #F2EFDF }
       div.gtl { border: 1px dashed #9a7c7e; background: #F2EFDF }
       div.gtw { border: 1px dotted #9a7c7e; background: #F2EFDF }
@@ -970,7 +983,7 @@
       /* image pages */
       div.sni { background: #EDEBDF; border: 1px solid #5C0D12 }`
 
-    // These are extracted from the style tags in document.head.
+    // These are extracted from the style tags in document.head, including the first checkbox fix.
     scientificLightStyles += `
       /* keep the ticks in checkboxes */
       .lc > span:after { border-width: 0 3px 3px 0 !important; }
@@ -1050,7 +1063,7 @@
      */
     const addStylesAtInteractive = function () {
       // The existing "displayMode" variable is not used due to its asynchronous assignment.
-      const displayMode = document.body.querySelector('#dms option[selected = "selected"]')
+      const displayMode = document.querySelector('.searchnav option[selected = "selected"]')
       if (displayMode !== null && displayMode.textContent.toLowerCase() === 'thumbnail') {
         // These are extracted from the style tag in document.head of the search index in the thumbnail display mode.
         scientificLightStylesElement.textContent += `
@@ -1157,24 +1170,17 @@
    * Prepares shared variables and CSS styles to support functions running at the "interactive" ready state.
    */
   const initialiseAtInteractive = function () {
-    displayMode = document.body.querySelector('#dms option[selected = "selected"]')
+    displayMode = document.querySelector('.searchnav > div:last-child option[selected = "selected"]')
     if (displayMode !== null) {
       // This includes the popular list, which lacks the top and bottom page numbers and the search result message.
       pageType = 'gallery list'
       displayMode = displayMode.textContent.toLowerCase()
     } else if (/e-hentai\.org\/toplist\.php\?tl=(?:11|12|13|15)/.test(windowUrl)) {
-      // These are gallery toplists and they do not have the display mode selector and the search result message.
+      // These are gallery toplists and they use a different format from the front page with a lot of elements and
+      // functions missing. Control panel, page download and additional filters are not supported on these lists.
       pageType = 'gallery list'
       // Gallery toplists always use the compact display mode.
       displayMode = 'compact'
-
-      // Recreate the display mode selector div, so that control buttons can be added to it when needed.
-      const dmsDiv = document.createElement('div')
-      dmsDiv.id = 'dms'
-      // Adjust the vertical position to keep button positions consistent.
-      dmsDiv.setAttribute('style', 'position: absolute; top: 29px')
-      const pageTableTop = document.getElementsByClassName('ptt')[0]
-      pageTableTop.parentNode.insertBefore(dmsDiv, pageTableTop)
     } else if (/e(?:-|x)hentai\.org\/g\/\d+\/[0-9a-z]+/.test(windowUrl)) {
       if (xpathSelector(document, './/a[text() = "Get Me Outta Here"]') !== null) {
         pageType = 'content warning'
@@ -1185,7 +1191,7 @@
       pageType = 'MPV view'
     } else if (/e(?:-|x)hentai\.org\/s\/[0-9a-z]+/.test(windowUrl)) {
       pageType = 'image view'
-    } else if (/upload\.e-hentai\.org|exhentai\.org\/upload/.test(windowUrl)) {
+    } else if (/upld\.e-hentai\.org|exhentai\.org\/upld/.test(windowUrl)) {
       pageType = 'upload management'
     } else if (windowUrl.includes('forums.e-hentai.org')) {
       pageType = 'EH forums'
@@ -1202,9 +1208,10 @@
     //    the ponies to be fully visible when the control panel is not open.
     // 2. "min-height" on #controlPanel tr prevents empty rows from being collapsed and allows text wrap in each row
     //    when needed.
-    let requiredCommonStyles = `
+    // 3. The three buttons added by this script and the display mode selector have been made vertically symmetrical,
+    //    but some browsers may randomly create subpixel inaccuracy that vertically misalign the buttons by like 0.1 px.
+    const requiredCommonStyles = `
       /* control panel */
-      #controlPanel tbody { display: block; }
       #controlPanel tr { display: block; min-height: 35px; padding: 0 10px; line-height: 35px; }
       #controlPanel tr.indent1 { padding-left: 28px; }
       #controlPanel tr.indent2 { padding-left: 46px; }
@@ -1212,22 +1219,13 @@
       input[type = "checkbox"] { margin: 0 5px 0 0; }
       #controlPanel input[type = "text"] { padding: 3px 5px; margin: 0 5px; }
       #controlPanel select { padding: 3px 1px; margin: 0 5px; }
-      /* DMS style buttons */
-      input[type = "button"].dmsStyleButtons { padding: 0; font-weight: bold; line-height: 17px; border-width: 1px; }
-      #dms > div > input { min-height: 25px; height: 25px; position: absolute; margin: 3px 1px 0; font-size: 10pt; }
-      #dms > div > select { height: 25px; }
-      #dms > #configButtonHost { float: left; }
-      #openConfigButton { width: 185px; left: 9px; }
-      #saveConfigButton { width: 93px; border-radius: 3px 0 0 3px; left: 9px; z-index: 4; }
-      #cancelConfigButton { width: 93px; border-radius: 0 3px 3px 0; left: 101px; z-index: 4; }
-      #additionalFiltersButton { width: 185px; left: ${windowUrl.includes('toplist.php') ? -65 : -190}px; }`
-    if (windowUrl.includes('popular')) {
-      requiredCommonStyles += `
-        .dmsp > div > select, #dms > div > input { top: -31px !important; }`
-    } else {
-      requiredCommonStyles += `
-        #dms > div > input { top: -13px; }`
-    }
+      /* Display mode selector style buttons */
+      input[type = "button"].dmsStyleButtons { min-height: 27px; font-weight: bold; padding: 4px; line-height: normal;
+        margin: 0 1px 1px; }
+      #openConfigButton { width: 140px; border-radius: 3px; }
+      #saveConfigButton { width: 70px; border-radius: 3px 0 0 3px; border-right: 0; margin-right: 0; }
+      #cancelConfigButton { width: 70px; border-radius: 0 3px 3px 0; border-left: 0; margin-left: 0; }
+      #additionalFiltersButton { width: 170px; }`
     appendStyleText(document.head, 'requiredCommonStyles', requiredCommonStyles)
   }
 
@@ -1236,15 +1234,16 @@
    *
    * This feature includes three filters, which remove galleries from gallery lists based on ratings and favorite
    * categories given by the user, and displayed gallery titles. The first two filters work on gallery chains and
-   * securely hide individual galleries and their future updates, but they cannot work on toplists, because toplists do
-   * not show rated and favorited statuses like other gallery lists. Although the gallery title filter can still work on
-   * toplists, this filter is still disabled on gallery toplists to keep the application of filters consistent.
-   *
-   * Another problem that cannot be fixed is that the rated filter cannot detect yellow stars, which is not enabled by
-   * default but can be manually configured in the EH gallery settings.
+   * securely hide individual galleries and their future updates. A problem that cannot be fixed is that the rated
+   * filter cannot detect yellow stars, which is not enabled by default but can be manually configured in the EH gallery
+   * settings.
    */
   const applyAdditionalFilters = function () {
-    if (pageType !== 'gallery list' || windowUrl.includes('toplist.php')) {
+    // This feature runs on all gallery lists except for gallery toplists, because they do not show rated and favorited
+    // statuses like other gallery lists. Although the gallery title filter can still work on toplists, this filter is
+    // disabled there to keep the application of filters consistent. It is also disabled when the list has already been
+    // emptied by site filters.
+    if (pageType !== 'gallery list' || windowUrl.includes('toplist.php') || !document.querySelector('.glink')) {
       return
     }
 
@@ -1277,15 +1276,15 @@
       switch (displayMode) {
         case 'minimal':
         case 'minimal+':
-          ratedMarks = document.body.querySelectorAll('.gl4m > .irr, .gl4m > .irg, .gl4m > .irb')
+          ratedMarks = document.querySelectorAll('.gl4m > .irr, .gl4m > .irg, .gl4m > .irb')
           break
         case 'compact':
-          ratedMarks = document.body.querySelectorAll('div[id ^= "posted_"] + .irr, div[id ^= "posted_"] + .irg, ' +
+          ratedMarks = document.querySelectorAll('div[id ^= "posted_"] + .irr, div[id ^= "posted_"] + .irg, ' +
             'div[id ^= "posted_"] + .irb')
           break
         case 'extended':
         case 'thumbnail':
-          ratedMarks = document.body.querySelectorAll('.irr, .irg, .irb')
+          ratedMarks = document.querySelectorAll('.irr, .irg, .irb')
       }
 
       if (shortcuts.ratedFilterStars === 'all') {
@@ -1317,7 +1316,7 @@
 
       // This is not affected by the display mode, because the duplicates of these elements below thumbnail overlays
       // use a different id format.
-      const favoritedMarks = document.body.querySelectorAll('div[id ^= "posted_"][title]')
+      const favoritedMarks = document.querySelectorAll('div[id ^= "posted_"][title]')
       if (shortcuts.favoritedFilterCategories === 'all') {
         removeGalleries(favoritedMarks)
       } else {
@@ -1349,7 +1348,7 @@
         return
       }
 
-      const galleryTitles = document.body.querySelectorAll('.glink')
+      const galleryTitles = document.querySelectorAll('.glink')
       const targetChildNodes = []
       if (shortcuts.titleFilterType === 'one of the keywords') {
         for (const galleryTitle of galleryTitles) {
@@ -1389,72 +1388,50 @@
     }
 
     /**
-     * Modifies the "showing * results" message to mention how many galleries have been excluded by additional filters.
+     * Adds a new message to mention how many galleries have been excluded by additional filters.
      */
     const updateResultMessage = function () {
-      // This function does not need to run on the two lists below because they do not have the search result message.
-      if (windowUrl.includes('popular') || windowUrl.includes('toplist.php')) {
+      // The additional result message is not added when the default search result message is not present, like on the
+      // favourite list and toplists.
+      if (filteredCount === 0 || !document.querySelector('div.searchtext')) {
         return
       }
 
-      const resultMessage = xpathSelector(document, './/p[@class = "ip"][starts-with(text(), "Showing")]')
-      resultMessage.id = 'additionalFiltersResults'
-      const alreadyFiltered = resultMessage.textContent.match(/Your filters excluded (\d+) galler(?:y|ies)/)
-      if (alreadyFiltered === null) {
-        // The standard second-stage filters from the site are not active. An exception is the watched page, but it is
-        // not possible to determine whether the second-stage filters have been active, so this exception is ignored.
-        resultMessage.textContent += `. The additional filters excluded ${filteredCount} ${filteredCount > 1
-          ? 'galleries' : 'gallery'}`
+      const resultMessage = document.querySelector('div.searchtext')
+      // This additional sentence about galleries removed by default filters can be disabled in gallery settings, but
+      // it only slightly changes the message shown by this function and does not matter.
+      const defaultFiltersActive = resultMessage.textContent.indexOf('removed') !== -1
+
+      // Create and simply add the new message below the default one to avoid modifying the latter with the button.
+      const additionalMessage = document.createElement('p')
+      additionalMessage.id = 'additionalFiltersMessage'
+      // This padding is set to achieve a mostly consistent line spacing between messages on the watched page and also
+      // between messages and search navigation buttons in general.
+      additionalMessage.style.paddingTop = '6px'
+      additionalMessage.textContent += `MEMS filters ${defaultFiltersActive ? 'further ' : ''}excluded ` +
+        `${filteredCount} ${filteredCount > 1 ? 'galleries' : 'gallery'}, and `
+
+      // Check how many galleries are still being shown after all filtering.
+      const visibleCount = document.getElementsByClassName('glink').length
+      if (visibleCount > 0) {
+        additionalMessage.textContent += `${visibleCount} ${visibleCount > 1 ? 'galleries are' : 'gallery is'} shown ` +
+          'on this page.'
       } else {
-        // When standard second-stage filters have already excluded some galleries, the message is only slightly
-        // modified to avoid making the message overlap with the additional filter button.
-        resultMessage.textContent = resultMessage.textContent.replace(alreadyFiltered[0], 'Your filters excluded ' +
-          `${alreadyFiltered[1]} + ${filteredCount} galleries`)
-        resultMessage.title = `The standard filters excluded ${alreadyFiltered[1]} ${+alreadyFiltered[1] > 1
-          ? 'galleries' : 'gallery'} and the additional filters excluded ${filteredCount} ${filteredCount > 1
-          ? 'galleries' : 'gallery'}`
+        // Clear one set of search navigation and the list element when all results have been removed by this feature.
+        // This look replicates what the design fixes feature does when site filters emptied the results. The first set
+        // of navigation buttons is kept since there can be results on other pages.
+        const listParent = document.querySelector('#toppane + div')
+        listParent.removeChild(listParent.querySelector('.itg'))
+        listParent.removeChild(listParent.querySelector('.searchnav:last-of-type'))
+        additionalMessage.textContent += 'all galleries have been hidden on this page.'
       }
-    }
-
-    /**
-     * Shows a message panel in the gallery list when all results have been removed by these additional filters.
-     *
-     * This function is not called when the list is emptied by second-stage filters, because in this case the site would
-     * have already shown an equivalent message panel.
-     */
-    const showNoResultsPanel = function () {
-      // Replicate the style of the standard "no unfiltered result" message panel from second-stage filters.
-      const noResultsTable = document.createElement('table')
-      noResultsTable.className = 'itg'
-      const noResultsMessage = noResultsTable.insertRow().insertCell()
-      noResultsMessage.setAttribute('style', 'padding: 10px 0; font-style: italic; text-align: center;')
-
-      // If the list has been emptied on the popular list or gallery toplists, it must be the work of these additional
-      // filters only and not the second-stage filters. On gallery lists other than these two types,
-      // #additionalFiltersResults from updateResultMessage() must exist since filteredCount > 0, and whether the
-      // second-stage filters have been active can be checked.
-      if (!windowUrl.includes('popular') && !windowUrl.includes('toplist.php') &&
-        document.getElementById('additionalFiltersResults').textContent.includes('+')) {
-        noResultsMessage.textContent = 'The standard and additional filters have excluded all galleries on this ' +
-          'particular page.'
-      } else {
-        noResultsMessage.textContent = 'The additional filters have excluded all galleries on this particular page.'
-      }
-
-      const galleryList = document.getElementsByClassName('itg')[0]
-      galleryList.parentNode.insertBefore(noResultsTable, galleryList)
-      galleryList.parentNode.removeChild(galleryList)
+      resultMessage.appendChild(additionalMessage)
     }
 
     shortcuts.ratedFilterEnabled && filterRatedGalleries()
     shortcuts.favoritedFilterEnabled && filterFavoritedGalleries()
     shortcuts.titleFilterEnabled && filterGallleryTitles()
-    if (filteredCount > 0) {
-      updateResultMessage()
-      if (document.getElementsByClassName('glink').length === 0) {
-        showNoResultsPanel()
-      }
-    }
+    updateResultMessage()
   }
 
   /**
@@ -1471,11 +1448,11 @@
     // the same page type.
     let forumPageType
     if (pageType === 'EH forums') {
-      if (document.body.querySelector('script[src = "jscripts/ipb_topic.js"]') !== null) {
+      if (document.querySelector('script[src = "jscripts/ipb_topic.js"]') !== null) {
         forumPageType = 'thread view'
-      } else if (document.body.querySelector('script[src = "jscripts/ipb_forum.js"]') !== null) {
+      } else if (document.querySelector('script[src = "jscripts/ipb_forum.js"]') !== null) {
         forumPageType = 'forum view'
-      } else if (document.body.querySelector('script[src = "jscripts/ipb_board.js"]') !== null) {
+      } else if (document.querySelector('script[src = "jscripts/ipb_board.js"]') !== null) {
         forumPageType = 'board view'
       } else if (document.getElementById('navstrip').textContent.includes('Search Engine') &&
         windowUrl.includes('result_type=posts')) {
@@ -1506,7 +1483,7 @@
      */
     const filterCommentsByKeyword = function () {
       const commentList = document.getElementById('cdiv')
-      const comments = document.body.querySelectorAll('.c6')
+      const comments = document.querySelectorAll('.c6')
       for (const comment of comments) {
         const keywords = decideKeywords(shortcuts.commentFilterKeywords)
         for (const keyword of keywords) {
@@ -1524,9 +1501,9 @@
     const filterPostsByUsername = function () {
       let posters
       if (forumPageType === 'thread view') {
-        posters = document.body.querySelectorAll('.bigusername > a')
+        posters = document.querySelectorAll('.bigusername > a')
       } else {
-        posters = document.body.querySelectorAll('.normalname a')
+        posters = document.querySelectorAll('.normalname a')
       }
       for (const poster of posters) {
         if (shortcuts.posterFilterUsernames.includes(poster.textContent)) {
@@ -1539,7 +1516,7 @@
      * Removes posts in thread view and thread-post view by checking the post contents for blocked keywords.
      */
     const filterPostsByKeyword = function () {
-      const posts = document.body.querySelectorAll('.postcolor')
+      const posts = document.querySelectorAll('.postcolor')
       const keywords = decideKeywords(shortcuts.postFilterKeywords)
       for (const post of posts) {
         for (const keyword of keywords) {
@@ -1555,7 +1532,7 @@
      * Removes threads in forum view by checking the thread starter names for blocked users.
      */
     const filterThreadsByUsername = function () {
-      const threadList = document.body.querySelector('.borderwrap > .ipbtable > tbody')
+      const threadList = document.querySelector('.borderwrap > .ipbtable > tbody')
       // The class name of the td below is different between the two forum themes and can be either .row1 or .row2.
       const posters = threadList.querySelectorAll('td > a[href ^= "https://forums.e-hentai.org/index.php?showuser="]')
       for (const poster of posters) {
@@ -1570,7 +1547,7 @@
      * Removes threads in forum view by checking the thread titles for blocked keywords.
      */
     const filterThreadsByKeyword = function () {
-      const threadList = document.body.querySelector('.borderwrap > .ipbtable > tbody')
+      const threadList = document.querySelector('.borderwrap > .ipbtable > tbody')
       const threads = threadList.querySelectorAll('a[id ^= "tid-link-"][title]')
       const keywords = decideKeywords(shortcuts.postFilterKeywords)
       for (const thread of threads) {
@@ -1587,7 +1564,7 @@
      * Censors blocked usernames in the "last action" column in forum view.
      */
     const censorLastActionByUsername = function () {
-      const lastActionUsers = document.body.querySelectorAll('.lastaction > b > ' +
+      const lastActionUsers = document.querySelectorAll('.lastaction > b > ' +
       'a[href ^= "https://forums.e-hentai.org/index.php?showuser="]')
       for (const lastActionUser of lastActionUsers) {
         if (shortcuts.posterFilterUsernames.includes(lastActionUser.textContent)) {
@@ -1600,7 +1577,7 @@
      * Censors blocked usernames in the "last post info" column in board view.
      */
     const censorLastPostByUsername = function () {
-      const lastPostUsers = document.body.querySelectorAll('a[title = "Go to the last post"] + span > ' +
+      const lastPostUsers = document.querySelectorAll('a[title = "Go to the last post"] + span > ' +
         'a[href ^= "https://forums.e-hentai.org/index.php?showuser="]')
       for (const lastPostUser of lastPostUsers) {
         if (shortcuts.posterFilterUsernames.includes(lastPostUser.textContent)) {
@@ -1613,7 +1590,7 @@
      * Censors thread titles with blocked keywords in the "last post info" column in board view.
      */
     const censorLastPostByKeyword = function () {
-      const lastPostThreads = document.body.querySelectorAll('a[title *= "Go to the first unread post:"]')
+      const lastPostThreads = document.querySelectorAll('a[title *= "Go to the first unread post:"]')
       const keywords = decideKeywords(shortcuts.postFilterKeywords)
       for (const lastPostThread of lastPostThreads) {
         for (const keyword of keywords) {
@@ -1654,7 +1631,7 @@
       // The elements in the two forum themes are named differently. The postList in the fusion theme is tried first
       // since it is easier.
       let postList = document.getElementById('ipbwrapper')
-      if (postList === null) {
+      if (!postList) {
         postList = document.querySelector('div.page > div:not(.copyright)')
       }
       const postBody = targetChildNode.closest('.borderwrap')
@@ -1736,188 +1713,68 @@
     let designFixesStyles = ''
 
     if (pageType === 'gallery list') {
-      // Fix the colour used for the titles of visited galleries, because the default colour is not distinct enough. The
-      // new colour in each theme is calculated by blending the background colour of div.ido and the colour of unvisited
-      // titles in the ratio of 3:1.
+      // Add a sentence to say how many galleries are visible after all filters, because it is still possible for the
+      // page to show less than a full page of 25/50/100 galleries after the search engine upgrade. Since this feature
+      // function runs after the additional filters feature, the effects of additional filters will be included and the
+      // correct count will be shown.
+      const additionalFiltersMessage = document.querySelector('#additionalFiltersMessage')
+
+      // If a message from the additional filters feature is already present, then that feature has already shown a
+      // count and removed the table when needed. Consequently no work needs to be done in this case. The gallery
+      // toplists are excluded since they do not have this message. Then, this fix will not run when the default search
+      // result message is not present, like on the favourite list and toplists. Some of the code below is shared with
+      // the additional filters.
+      if (!additionalFiltersMessage && document.querySelector('div.searchtext')) {
+        const visibleGalleries = document.querySelectorAll('.glink').length
+        let currentCountMessage
+        if (visibleGalleries > 0) {
+          currentCountMessage = `Currently showing ${visibleGalleries} galleries on this page.`
+        } else {
+          // If the "no unfiltered results in this page range" table is shown, it means the default filters already
+          // emptied the page and the additional filters did not activate. This table or box has a few problems:
+          // 1. The colspan of this message's row in minimal(+) display modes is one column short.
+          // 2. The table header row exists in all display modes other than extended, which is inconsistent, and it
+          //    should not exist in the thumbnail gallery list display mode, which does not use a details table.
+          // This table will be removed and replaced by the consistent sentence added below.
+          // The sentence will use the same message as the table.
+          currentCountMessage = document.body.querySelector('.itg td[colspan]:not([class])').textContent
+          const listParent = document.querySelector('#toppane + div')
+          listParent.removeChild(listParent.querySelector('.itg'))
+          listParent.removeChild(listParent.querySelector('.searchnav:last-of-type'))
+        }
+        const additionalMessage = document.createElement('p')
+        additionalMessage.textContent = currentCountMessage
+        // This padding is set to acheive a visually consistent line spacing between messages on the watched page.
+        additionalMessage.style.paddingTop = '6px'
+        document.querySelector('div.searchtext').appendChild(additionalMessage)
+      }
+    } else if (pageType === 'upload management') {
+      // The styles in document.head of the upload list are still the same on both sides. There are only two effective
+      // colour properties, but they only fit the light theme, so a fix is needed for the dark theme.
       if ((windowUrl.includes('e-hentai.org') && settings.applyDarkTheme.featureEnabled) ||
         (windowUrl.includes('exhentai.org') && !settings.applyLightTheme.featureEnabled)) {
+        // The colours for the two sorting arrows are supposed to show borders for the active arrow only. These dark
+        // theme colours are the colour of the table header text and that of the hearder background, which are
+        // consistent with the colour selection in the light theme.
         designFixesStyles += `
-          /* improve the colour of visited titles */
-          a:visited .glink, a:active .glink { color: #73767c }`
-      } else {
-        designFixesStyles += `
-          /* improve the colour of visited titles */
-          a:visited .glink, a:active .glink { color: #C9B4AC }`
-      }
-
-      // Fix the message "no unfiltered results in this page range" from second-stage filters. It has two problems:
-      // 1. The colspan of this message's row in minimal(+) display modes is one column short.
-      // 2. The table header row exists in all display modes other than extended, which is inconsistent, and it should
-      //    not exist in the thumbnail gallery list display mode, which does not use a details table.
-
-      // Unlike the others, the td element for this message does not have a class but has a colspan attribute.
-      const noResultsMessage = document.body.querySelector('.itg td[colspan]:not([class])')
-      if (noResultsMessage !== null && displayMode !== 'extended') {
-        // The header row is deleted to solve all problems at once, since it is not needed when the result is empty.
-        noResultsMessage.parentNode.parentNode.removeChild(noResultsMessage.parentNode.previousElementSibling)
-      }
-
-      // Fix the lack of space at the beginning of the popular list on EX to accommodate the display mode selector.
-      if (windowUrl === 'https://exhentai.org/popular') {
-        // The heading on EH is recreated here to make space while maintaining consistency.
-        const heading = document.createElement('h1')
-        heading.className = 'ih'
-        heading.textContent = 'Currently Popular Recent Galleries'
-        document.getElementById('toppane').appendChild(heading)
-      }
-
-      // Fix the wording of the search result message. The popular list and gallery toplists are excluded since they do
-      // not have this message.
-      if (!windowUrl.includes('popular') && !windowUrl.includes('toplist')) {
-        const resultMessage = xpathSelector(document, './/p[@class = "ip"][starts-with(text(), "Showing")]')
-
-        // Change the "your filters excluded * galleries from this page" part to say "page range" when the gallery list
-        // is showing filtered results from multiple pages at once.
-        if (document.getElementsByClassName('ptds')[0].textContent.includes('-')) {
-          resultMessage.textContent = resultMessage.textContent.replace('this page', 'this page range')
-        }
-
-        // Change the "showing * galleries" part to say "showing * out of * galleries", where the first number is the
-        // actual number of galleries in the current list and the second is the total number of galleries found in a
-        // search before deductions from the standard second-stage filters, the additional filters from this script, and
-        // indexing delay. Since this feature function runs after applyAdditionalFilters(), the effects of additional
-        // filters will be included and the correct count will be shown. However, the effect of indexing delay cannot be
-        // accounted for, which probably mainly affects updated galleries.
-        const totalGalleries = resultMessage.textContent.match(/Showing ([0-9,]+) results?/)[1]
-        const visibleGalleries = document.body.querySelectorAll('.glink').length
-        resultMessage.textContent = resultMessage.textContent.replace(totalGalleries,
-          `${visibleGalleries} out of ${totalGalleries}`)
-      }
-
-      // DISABLED: It has been discovered that the adjustment needed differs by pony, browser and gallery list type, and
-      // it is too difficult to fix the ponies completely.
-      /*
-      // Fix the vertical position of ponies so that they align with the border of gallery lists.
-      const pony = document.body.querySelector('img[src ^= "https://ehgt.org/g/ponies/"]')
-      if (pony !== null) {
-        // Ponies have different sizes and absolute positions, but the vertical gap is always the same, so translateY()
-        // can be used. This should not cause subpixel rendering.
-        pony.parentNode.style.transform = 'translateY(4px)'
-      }
-      */
-    } else if (windowUrl.includes('stats.php')) {
-      // Fix the missing border at the top-right corner of each bar graph.
-      for (const td of document.body.querySelectorAll('td[colspan]')) {
-        // Compared to the private statistics page for a user, the public statistics page for a gallery includes an
-        // additional gallery ranking table. This table is not a bar graph and does not contain "td.stdb".
-        const barCount = td.parentNode.parentNode.querySelectorAll('td.stdb').length
-        if (barCount > 0) {
-          td.setAttribute('colspan', barCount + 1)
-        }
-      }
-      // The title and style sheet are both in the body on this page. That is not appropriate, but they do not really
-      // need to be fixed, so they are not moved. Also, this page seems unnecessarily wide, but such a wide page may be
-      // (eventually) needed for users with many years of statistics to show, and is hence not changed.
-    } else if (pageType === 'upload management' || windowUrl.includes('repo.e-hentai.org')) {
-      // Recreate the navigation bar using the new style on these pages, which still use the old navigation bar. They
-      // use the old 0338 style sheet, so the new styles from 0347 are added to support the recreated bar. Swapping
-      // the style sheet makes little difference, so it is not worth a total reflow.
-      designFixesStyles += `
-        /* navigation bar (v0347) */
-        #nb { margin: auto; padding: 4px 10px 0; text-align: center; font-size:10pt; font-weight: bold;
-          color: #AAAAAA; white-space: nowrap; overflow: hidden; min-width: 630px; max-width: 700px; display: flex;
-          flex-direction: row; justify-content: space-around; align-items: center; flex-wrap: wrap; line-height: 19px;
-          min-height: 19px; max-height: 19px; }
-        #nb:hover { max-height: 38px; }
-        #nb > div { background-image: url(https://ehgt.org/g/mr.gif); background-repeat: no-repeat;
-          background-position: left center; padding: 0 14px 0 7px; }
-        #nb a { text-decoration: none; font-weight: bold; }
-        #lb { margin: 4px auto 2px; text-align: center; font-size: 9pt; }
-        #lb a { text-decoration: none; }`
-
-      const newBar = document.createElement('div')
-      const site = windowUrl.includes('e-hentai.org') ? 'e-hentai.org' : 'exhentai.org'
-      addNavigationButton(newBar, 'Front Page', `https://${site}/`)
-      addNavigationButton(newBar, 'Watched', `https://${site}/watched`)
-      addNavigationButton(newBar, 'Popular', `https://${site}/popular`)
-      addNavigationButton(newBar, 'Torrents', `https://${site}/torrents.php`)
-      addNavigationButton(newBar, 'Favorites', `https://${site}/favorites.php`)
-      if (windowUrl.includes('upload.e-hentai.org') || windowUrl.includes('repo.e-hentai.org')) {
-        addNavigationButton(newBar, 'My Home', 'https://e-hentai.org/home.php')
-        addNavigationButton(newBar, 'My Uploads', 'https://upload.e-hentai.org/manage.php')
-        addNavigationButton(newBar, 'Toplists', 'https://e-hentai.org/toplist.php')
-        addNavigationButton(newBar, 'Bounties', 'https://e-hentai.org/bounty.php')
-        addNavigationButton(newBar, 'News', 'https://e-hentai.org/news.php')
-        addNavigationButton(newBar, 'Forums', 'https://forums.e-hentai.org/')
-        addNavigationButton(newBar, 'Wiki', 'https://ehwiki.org/')
-        addNavigationButton(newBar, 'HentaiVerse', 'https://hentaiverse.org/')
-      } else if (windowUrl.includes('exhentai.org/upload')) {
-        addNavigationButton(newBar, 'Settings', 'https://exhentai.org/uconfig.php')
-        addNavigationButton(newBar, 'My Uploads', 'https://exhentai.org/upload/manage.php')
-        addNavigationButton(newBar, 'My Tags', 'https://exhentai.org/mytags')
-      }
-      const navigationBar = document.getElementById('nb')
-      navigationBar.parentNode.insertBefore(newBar, navigationBar.nextSibling)
-      navigationBar.parentNode.removeChild(navigationBar)
-      newBar.id = 'nb'
-      newBar.style.display = 'flex'
-
-      if (pageType === 'upload management') {
-        if (windowUrl.includes('managegallery')) {
-          // Refit the height of the "choose files" button in gallery upload pages, because the bottom border was too
-          // low and inconsistent with other buttons of the same type, like the file search button.
-          const uploadButton = document.getElementById('uploadfiles')
-          if (uploadButton !== null) {
-            uploadButton.style.height = 'auto'
-          }
-        } else {
-          // The styles in document.head of the upload list are the same on both sides. There are only two effective
-          // colour properties, but they only fit the light theme, so a fix is needed for the dark theme.
-          if ((windowUrl.includes('e-hentai.org') && settings.applyDarkTheme.featureEnabled) ||
-            (windowUrl.includes('exhentai.org') && !settings.applyLightTheme.featureEnabled)) {
-            // These colours are the colour of the table header text and that of the hearder background, which are
-            // consistent with the colours in the light theme.
-            designFixesStyles += `
-              /* fix sorting arrow colours in dark theme */
-              img.s { border-color: #f1f1f1 }
-              img.u { border-color: #40454b }`
-          }
-        }
+          /* fix dark theme sorting arrow colours in upload management */
+          img.s { border-color: #f1f1f1 }
+          img.u { border-color: #40454b }`
       }
     } else if (pageType === 'EH forums') {
       // Use a relative limit instead of an absolute one to ensure images in posts will fit inside the viewport. This
       // applies to both thread view and thread-post view.
       designFixesStyles += `
-        /* limit relative size of images in posts */
+        /* limit relative size of images in forum posts */
         .postcolor img { max-width: 100% !important; }`
-    } else if (/e-hentai\.org\/gallerypopups\.php\?gid=\d+&t=[0-9a-z]+&act=expunge/.test(windowUrl)) {
-      // DISABLED: The redesigned expunged log does not have PM icons so this fix is no longer needed.
-      /*
-      // The spacing between each pair of username and PM icon in the expunge log is inconsistent with that in gallery
-      // view. "padding-left" of the PM icon is therefore increased by 18px to match the spacing in gallery view, which
-      // is created by a 18.34px wide text node.
-      designFixesStyles += `
-        /* adjust spacing between username and PM icon *//*
-        img.ygm { filter: brightness(100); padding-left: 20px; }`
-      */
     } else if (windowUrl.includes('exhentai.org/tos.php')) {
       // Redirect the terms of service page in the EX upload interface, because this EX version does not exist.
       window.location.assign(windowUrl.replace('exhentai.org', 'e-hentai.org'))
     } else if (windowUrl.includes('tools.php?act=track_rename')) {
+      // Allow titles to wrap to next line on rename tracker to ease reading and remove the need to scroll horizontally.
       designFixesStyles += `
-        /* let submitted rename titles wrap to next line to maintain page width */
+        /* wrap submitted rename titles on rename tracker */
         body > div > div > div > div { white-space: unset !important; } `
-    }
-
-    if (pageType === 'gallery list' || windowUrl === 'https://e-hentai.org/bounty.php') {
-      // Fix the colour of the arrow in the page number selector when it is not clickable in the dark theme. Without
-      // this fix, this arrow would still use the colour from the light theme.
-      if ((windowUrl.includes('e-hentai.org') && settings.applyDarkTheme.featureEnabled) ||
-        (windowUrl.includes('exhentai.org') && !settings.applyLightTheme.featureEnabled)) {
-        designFixesStyles += `
-          /* use an appropriate colour for unclickable page number arrow */
-          td.ptdd, td.ptdd:hover { color: #73767c !important; }`
-      }
     }
 
     if (designFixesStyles.length > 0) {
@@ -1934,7 +1791,7 @@
       return
     }
     const navigationBar = document.getElementById('nb')
-    if (navigationBar === null) {
+    if (!navigationBar) {
       return
     }
 
@@ -1949,9 +1806,9 @@
       addNavigationButton(navigationBar, 'Wiki', 'https://ehwiki.org/')
       // This does not relicate the "HentaiVerse" -> "HV" behaviour from the span elements when screen width is limited.
       addNavigationButton(navigationBar, 'HentaiVerse', 'https://hentaiverse.org/')
-      if (windowUrl.includes('exhentai.org/upload')) {
-        addNavigationButton(navigationBar, 'To E-Hentai', windowUrl.replace('exhentai.org/upload',
-          'upload.e-hentai.org'))
+      if (windowUrl.includes('exhentai.org/upld/')) {
+        addNavigationButton(navigationBar, 'To E-Hentai', windowUrl.replace('exhentai.org/upld/',
+          'upld.e-hentai.org/'))
       } else {
         addNavigationButton(navigationBar, 'To E-Hentai', windowUrl.replace('exhentai.org', 'e-hentai.org'))
       }
@@ -2027,7 +1884,7 @@
     function updateUnreadMmCount (documentReceived) {
       const unreadCountButton = xpathSelector(document, './/a[text() = "MM: –"]')
 
-      if (documentReceived.getElementById('mmail_outer') === null) {
+      if (!documentReceived.getElementById('mmail_outer')) {
         // Do nothing because the MM inbox page was not received, likely because the user is in a battle.
       } else if (documentReceived.getElementById('mmail_nnm') !== null) {
         // Check for the "no new mail" indicator.
@@ -2151,12 +2008,14 @@
     }
 
     // max-height: 100% is needed on div#gd4 below to limit the height of the tagging area to prevent its side borders
-    // from overflowing when a tag is selected.
+    // from overflowing when a tag is selected. div#gwrd is the tag loading GIF and its position needs to be fixed
+    // when this feature is active.
     let vigilanteLinksStyles = `
       div#gd4 { width: 570px; max-height: 100%; }
       #tagmenu_new { width: auto !important; }
       div#gd5 { width: 160px; margin-top: -5px; }
-      .gsp { padding-top: 12px; }`
+      .gsp { padding-top: 12px; }
+      div#gwrd { top: -30px; }`
 
     // When there is an advertisement, there will be a #spa element between #gd3 and #gd4 that can take at least 600 x
     // 60px space. The "report gallery" link is also too close to the advertisement, and the fix below is a design fix.
@@ -2183,10 +2042,10 @@
 
     // These links are ordered by thread size.
     addLinkItem(' Tagging Assistance', 'https://forums.e-hentai.org/index.php?showtopic=184081', 'g2 forum gsp')
-    addLinkItem(' Tag Namespacing', 'https://forums.e-hentai.org/index.php?showtopic=199295', 'g2 forum')
+    addLinkItem(' Tag Namespacing', 'https://forums.e-hentai.org/index.php?showtopic=246656', 'g2 forum')
     addLinkItem(' Renaming & Reclassing', 'https://forums.e-hentai.org/index.php?showtopic=227712', 'g2 forum')
     addLinkItem(' Expunge Assistance', 'https://forums.e-hentai.org/index.php?showtopic=242797', 'g2 forum')
-    addLinkItem(' Comment Cleanup', 'https://forums.e-hentai.org/index.php?showtopic=217762', 'g2 forum')
+    addLinkItem(' Comment Cleanup', 'https://forums.e-hentai.org/index.php?showtopic=247567', 'g2 forum')
   }
 
   /**
@@ -2258,7 +2117,7 @@
       // The ratio will be rounded down to one decimal place.
       const ratio = Math.floor((timesFavorited / timesRated) * 10) / 10
       // Go through the thresholds in descending order and use the floor for this gallery's descriptive rating.
-      ratioLevels.push({ ratio: ratio, description: 'this gallery' })
+      ratioLevels.push({ ratio, description: 'this gallery' })
       ratioLevels.sort((a, b) => a.ratio - b.ratio)
       let i = ratioLevels.length
 
@@ -2340,22 +2199,13 @@
     let subjectiveFixesStyles = ''
 
     if (pageType !== 'EH forums' && pageType !== 'HentaiVerse') {
-      // Adjust the input elements everywhere.
-      subjectiveFixesStyles += `
-        /* use consistent 1px border */
-        input[type = "button"], input[type = "submit"] { border-width: 1px; }
-        /* vertically center the text in input elements */
-        input[type = "text"], input[type = "password"], select, textarea { padding: 2px 3px; }`
-
       // The vertical spacing above the links at the very bottom, such as "terms of service", is inconsistent across
-      // page types and often too small. A consistent spacing of 5px is used above these links.
+      // page types and somtimes too small. A consistent spacing of 5px is used above these links. Most page have
+      // inconsistent but sufficient spacing so they are not changed.
       subjectiveFixesStyles += `
-        /* gallery list, torrent list and bounty view */
-        div.ido + div.dp, div.ido + script + div.dp, form#form_bounty + script + div.dp { margin-top: 0 !important; }
-        /* gallery view already has the right margin */
         /* image view */
-        div#i1 + script + script + div.dp {
-          margin-top: ${settings.fitViewerToScreen.featureEnabled ? '5px' : '-1px'} !important; }
+        div#i1 + script + script + div.dp
+          { margin-top: ${settings.fitViewerToScreen.featureEnabled ? '5px' : '-1px'} !important; }
         /* news */
         div#newsouter + div.dp { margin-top: 5px !important; }`
 
@@ -2374,11 +2224,14 @@
     }
 
     if (pageType === 'gallery view') {
-      // Realign and fix inconsistent tag input and button. This is partially caused by the input element fix above.
+      // Manually fit the tag button to panel width.
+      const buttonWidth = (settings.addVigilanteLinks.featureEnabled ? 570 : 580) - 10 - 4 - 480 - 2 - 2 - 2
       subjectiveFixesStyles += `
-        #newtagfield { line-height: 20px; }
-        #newtagbutton { width: 100px; max-width: calc(570px - 10px - 4px - 480px - 2px - 2px - 2px);
-          font-size: 10pt; padding: 2px 3px; }`
+        #newtagbutton { width: ${buttonWidth}px; }`
+      if (!settings.addVigilanteLinks.featureEnabled) {
+        subjectiveFixesStyles += `
+          div#tagmenu_new > form { width: max-content; }`
+      }
     } else if (pageType === 'EH forums') {
       // Tick the two checkboxes for new forum PMs to add sent PMs to sent items and track these messages by default.
       if (/forums\.e-hentai\.org\/index\.php\?(?:act=Msg(?:&CODE=0?4)?|CODE=0?4&act=Msg)/.test(windowUrl)) {
@@ -2420,7 +2273,7 @@
     //    list or gallery view, the URL would have the name of the category.
     if (pageType !== 'gallery list') {
       return
-    } else if (document.getElementById('searchbox') === null) {
+    } else if (!document.getElementById('searchbox')) {
       return
     } else if (/f_cats|doujinshi|manga|artistcg|gamecg|western|non-h|imageset|cosplay|asianporn|misc/.test(windowUrl)) {
       // Check for the "f_cats=0" and "f_cats=1023" cases where all category buttons were manually selected or
@@ -2480,8 +2333,8 @@
    * consistency with the timestamps.
    */
   const colourCodeGalleries = function () {
-    // This feature runs on gallery lists but not gallery toplists, because the elements there differ from other types
-    // of gallery lists and gallery statuses are not shown besides the expunged timestamp.
+    // This feature runs on all gallery lists except for gallery toplists, because the elements there differ from other
+    // types of gallery lists and gallery statuses are not shown besides the expunged timestamp.
     if (pageType !== 'gallery list' || windowUrl.includes('toplist.php')) {
       return
     }
@@ -2546,7 +2399,7 @@
     // enable the visibility change on hover.
     const topControlGroup = document.createElement('div')
     topControlGroup.id = 'topControlGroup'
-    topControlGroup.appendChild(document.body.querySelector('#i1 > h1'))
+    topControlGroup.appendChild(document.querySelector('#i1 > h1'))
     topControlGroup.appendChild(document.getElementById('i2'))
     document.getElementById('i1').insertBefore(topControlGroup, document.getElementById('i3'))
 
@@ -2680,10 +2533,15 @@
   }
 
   /**
-   * Adds a user-friendly control panel for this script to gallery lists, which also keeps the settings between updates.
+   * Adds a user-friendly control panel for this script to front page search results, and saves checked settings.
+   *
+   * The optional button for quickly toggling the additional filters is also added here if enabled.
    */
   const addControlPanel = function () {
-    if (pageType !== 'gallery list') {
+    // This feature does not run on toplists because of their legacy format, which requires a separate set of old code
+    // to support. The control panel buttons also cannot be added on the favourite list due to a lack of space, but the
+    // filter button can still be added there.
+    if (pageType !== 'gallery list' || windowUrl.includes('toplist.php')) {
       return
     }
 
@@ -2693,13 +2551,16 @@
      * Adds the "open", "save" and "cancel" buttons for using the control panel.
      */
     const addConfigButtons = function () {
-      // Move up the display order options in the favorite list so that they are not blocked from view by these buttons.
-      if (windowUrl.includes('favorites.php')) {
-        const displayOrderOption = document.body.querySelector('a[href *= "inline_set=fs_"]')
-        displayOrderOption.parentNode.parentNode.style.top = '-29.5px'
+      // The control panel buttons are not added on the favourite list because their location is now taken by the new
+      // order selector. Then, it is possible for the gallery list page to not have a list due to "no hits" and other
+      // features of this script; in such cases, these buttons (and the page download button from automated downloads)
+      // will not be added, but this feature function still needs to run to add the button for toggling additional
+      // filters if needed.
+      if (windowUrl.includes('favorites.php') || !document.querySelector('.itg')) {
+        return
       }
 
-      const openConfigButton = createDmsButton('openConfigButton', 'Configure Master Script', openControlPanel,
+      const openConfigButton = createDmsButton('openConfigButton', 'Configure MEMS', openControlPanel,
         'Temporarily hide the gallery list and open the control panel')
       const saveConfigButton = createDmsButton('saveConfigButton', 'Save', function () {
         if (saveSettings()) {
@@ -2710,16 +2571,16 @@
       }, 'Save the settings and close the control panel')
       const cancelConfigButton = createDmsButton('cancelConfigButton', 'Cancel', closeControlPanel, 'Close the ' +
         'control panel without saving any changes')
-      openConfigButton.style.display = 'block'
+      openConfigButton.style.display = 'unset'
       saveConfigButton.style.display = 'none'
       cancelConfigButton.style.display = 'none'
 
-      const configButtonHost = document.createElement('div')
-      configButtonHost.id = 'configButtonHost'
+      // An ID is not added to this host becasue this function does not run on the favourite list, and the page download
+      // button will find this host on its own.
+      const configButtonHost = document.querySelector('.searchnav > div:first-child')
       configButtonHost.appendChild(openConfigButton)
       configButtonHost.appendChild(saveConfigButton)
       configButtonHost.appendChild(cancelConfigButton)
-      document.getElementById('dms').appendChild(configButtonHost)
     }
 
     /**
@@ -2729,10 +2590,10 @@
       const controlPanel = createControlPanel()
       galleryList.parentNode.insertBefore(controlPanel, galleryList)
       galleryList.style.display = 'none'
-      controlPanel.style.display = 'block'
+      controlPanel.style.display = 'table'
       document.getElementById('openConfigButton').style.display = 'none'
-      document.getElementById('saveConfigButton').style.display = 'block'
-      document.getElementById('cancelConfigButton').style.display = 'block'
+      document.getElementById('saveConfigButton').style.display = 'unset'
+      document.getElementById('cancelConfigButton').style.display = 'unset'
     }
 
     /**
@@ -2755,7 +2616,7 @@
       extendWithAnchor(scriptInfoRow, undefined, 'User Manual',
         'https://github.com/Mayriad/Mayriads-EH-Master-Script/blob/master/README.md', true)
       scriptInfoRow.appendChild(document.createTextNode(' • '))
-      extendWithAnchor(scriptInfoRow, undefined, 'Support Thread - Ask me if you need help!',
+      extendWithAnchor(scriptInfoRow, undefined, 'Support Thread',
         'https://forums.e-hentai.org/index.php?showtopic=233955', true)
 
       // Sitewide features ---------------------------------------------------------------------------------------------
@@ -2783,8 +2644,8 @@
       // applySubjectiveFixes
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'applySubjectiveFixes-featureEnabled',
-        settings.applySubjectiveFixes.featureEnabled, 'Apply subjective style fixes to make some elements look ' +
-        'better and more consistent in the gallery system')
+        settings.applySubjectiveFixes.featureEnabled, 'Apply subjective fixes to make a few elements more convenient ' +
+        'and look better in the gallery system and the forum board')
 
       // improveNavigationBar
 
@@ -2940,7 +2801,7 @@
 
       extendWithCheckBox(appendRow(controlPanel, 0), 'useAutomatedDownloads-featureEnabled',
         settings.useAutomatedDownloads.featureEnabled, 'Add download shortcut buttons to automatically download ' +
-        'galleries directly from all types of gallery lists (a few options below)')
+        'galleries directly from all types of gallery lists (many options below)')
 
       extendWithCheckBox(appendRow(controlPanel, 1), 'useAutomatedDownloads-torrentDownloadEnabled',
         settings.useAutomatedDownloads.torrentDownloadEnabled, 'Enable torrent download and prioritise it over ' +
@@ -3110,10 +2971,6 @@
       extendWithCheckBox(appendRow(controlPanel, 0), 'script-buttonTooltipEnabled',
         settings.script.buttonTooltipEnabled, 'Show tooltips on control buttons added by this userscript')
 
-      // Use the actual width of the gallery list for the width of the control panel to make the transition seamless.
-      controlPanel.style.width = `${galleryList.offsetWidth - 2 * 2 - 3 * 2}px`
-      // This is mostly only needed for gallery toplists, which use wider compact display mode tables.
-      controlPanel.style.maxWidth = controlPanel.style.width
       return controlPanel
     }
 
@@ -3319,6 +3176,7 @@
             inputs[settingId] = settingElement.checked
           } else if (settingElement.type === 'text') {
             inputs[settingId] = checkTextInput(settingElement.value.trim(), settingId)
+            // The falsy return values can be null or '' and the check needs to be specific.
             if (inputs[settingId] === null) {
               return false
             }
@@ -3515,7 +3373,7 @@
       const controlPanel = document.getElementById('controlPanel')
       controlPanel.parentNode.removeChild(controlPanel)
       galleryList.style.removeProperty('display')
-      document.getElementById('openConfigButton').style.display = 'block'
+      document.getElementById('openConfigButton').style.display = 'unset'
       document.getElementById('saveConfigButton').style.display = 'none'
       document.getElementById('cancelConfigButton').style.display = 'none'
     }
@@ -3539,9 +3397,8 @@
           toggleAdditionalFilters, `Turn on the individual additional filters from ${api.info.script.name} which ` +
           'have been enabled in the control panel, and refresh the page to filter the gallery list')
       }
-      const buttonHost = document.createElement('div')
-      buttonHost.appendChild(additionalFiltersButton)
-      document.getElementById('dms').appendChild(buttonHost)
+      const dmsHost = document.querySelector('.searchnav > div:last-child')
+      dmsHost.insertBefore(additionalFiltersButton, dmsHost.firstChild)
     }
 
     /**
@@ -3557,11 +3414,15 @@
     }
 
     addConfigButtons()
+    // The filter button has to be added here because it needs to run when the additional filters feature is disabled.
     settings.script.filterButtonEnabled && addFilterButton()
   }
 
   /**
    * Adds buttons to automatically download galleries or whole gallery lists directly from all types of gallery lists.
+   *
+   * While this function runs on gallery toplists, page download is not supported there due to the inconsistent format
+   * used by these toplists compared to the standard gallery lists.
    */
   const useAutomatedDownloads = function () {
     /**
@@ -3573,7 +3434,8 @@
      * @param {Object} [responseReceived] - The response from the last XHR, which is only required to start a download.
      */
 
-    if (pageType !== 'gallery list') {
+    // This feature will not run if there is no gallery to download.
+    if (pageType !== 'gallery list' || !document.querySelector('.glink')) {
       return
     }
 
@@ -3604,7 +3466,7 @@
         .galleryDownloadButton.idle:hover { box-shadow: 0 1px 7px 2px rgba(34, 167, 240, 0.6); }
         .galleryDownloadButton.failed:hover, .galleryDownloadButton.unavailable:hover {
           box-shadow: 0 1px 7px 2px rgba(217, 30, 24, 0.6); }
-        #pageDownloadButton { width: 155px; left: 199px; }`
+        #pageDownloadButton { width: 155px; }`
 
       // Add borders to match the category buttons in three of the four possible cases. The only scenario where borders
       // are not needed is the original EX without the light theme feature.
@@ -3649,8 +3511,9 @@
             .cn:not([data-disabled]):hover { opacity: 1 !important; }`
           break
         case 'thumbnail':
+          // Button width needs to override an incorrect default width for ".itg .cs" in this display mode only.
           downloadShortcutStyles += `
-            .galleryDownloadButton { height: 18px; width: 110px; line-height: 18px; }
+            .galleryDownloadButton { height: 18px; width: 110px !important; line-height: 18px; }
             .gl1t:hover .galleryDownloadButton { display: inline-block; opacity: 1 !important; }
             .cs:not([data-disabled]):hover { opacity: 1 !important; }`
       }
@@ -3667,29 +3530,29 @@
       switch (displayMode) {
         case 'minimal':
         case 'minimal+':
-          bases = document.body.querySelectorAll('.gl1m.glcat > .cs')
-          galleries = document.body.querySelectorAll('.gl3m.glname > a')
+          bases = document.querySelectorAll('.gl1m.glcat > .cs')
+          galleries = document.querySelectorAll('.gl3m.glname > a')
           break
         case 'compact':
-          bases = document.body.querySelectorAll('.gl1c.glcat > .cn')
-          galleries = document.body.querySelectorAll('.gl3c.glname > a')
+          bases = document.querySelectorAll('.gl1c.glcat > .cn')
+          galleries = document.querySelectorAll('.gl3c.glname > a')
           break
         case 'extended':
-          bases = document.body.querySelectorAll('.gl3e > .cn')
-          galleries = document.body.querySelectorAll('.gl2e > div > a')
-          thumbnails = document.body.querySelectorAll('.gl1e > div > a')
+          bases = document.querySelectorAll('.gl3e > .cn')
+          galleries = document.querySelectorAll('.gl2e > div > a')
+          thumbnails = document.querySelectorAll('.gl1e > div > a')
           break
         case 'thumbnail':
-          bases = document.body.querySelectorAll('.gl5t > div > .cs')
+          bases = document.querySelectorAll('.gl5t > div > .cs')
           // In this display mode, the anchors on gallery titles are located differently in the DOM tree between the
           // search index and the favorite list, but the anchors on gallery thumbnails are not. Therefore, one selector
           // can be safely used for both page types. The same set of anchors from this selector can also be used to
           // acquire both the gallery addresses and the thumbnail images below.
-          galleries = document.body.querySelectorAll('.gl3t > a')
-          thumbnails = document.body.querySelectorAll('.gl3t > a')
+          galleries = document.querySelectorAll('.gl3t > a')
+          thumbnails = document.querySelectorAll('.gl3t > a')
       }
-      const torrents = document.body.querySelectorAll('.gldown')
-      const timestamps = document.body.querySelectorAll('div[id ^= "posted_"]')
+      const torrents = document.querySelectorAll('.gldown')
+      const timestamps = document.querySelectorAll('div[id ^= "posted_"]')
 
       let i = bases.length
       while (i--) {
@@ -3719,11 +3582,14 @@
         bases[i].appendChild(galleryDownloadButton)
       }
 
-      if (shortcuts.pageDownloadEnabled) {
+      // Like the control panel button, the page download button is not added on toplists because of the legacy format.
+      // Page download is most likely not needed there anyway.
+      if (shortcuts.pageDownloadEnabled && !windowUrl.includes('toplist.php')) {
         originalTitle = document.title
-        // Add a button next to the script configuration button to download one or more pages in one click.
+        // Add a button after the control panel button or the favourite sorting selector to download one or more pages
+        // in one click.
         const pageDownloadButton = createDmsButton('pageDownloadButton', '', attemptPageDownload, '')
-        document.getElementById('configButtonHost').appendChild(pageDownloadButton)
+        document.querySelector('.searchnav > div:first-child').appendChild(pageDownloadButton)
         changePageDownloadState('idle')
       }
     }
@@ -4269,7 +4135,7 @@
     const selectTargetTorrent = function (galleryDownloadButton, documentReceived) {
       // Check whether the page is actually a torrent list page. This check should be unnecessary, which is why an
       // unknown error will be thrown.
-      if (documentReceived.getElementById('torrentinfo') === null) {
+      if (!documentReceived.getElementById('torrentinfo')) {
         handleError(galleryDownloadButton, 'unknownError', documentReceived.documentElement.outerHTML)
         return
       }
@@ -4342,9 +4208,10 @@
           // modified URL for the personalised torrent when logged in; if not logged in, the onclick will just have the
           // same URL as .href.
           torrent: shortcuts.personalisedTorrentEnabled
-            ? torrent.getAttribute('onclick').match(/^document.location='(.+)'; return false$/)[1] : torrent.href,
+            ? torrent.getAttribute('onclick').match(/^document.location='(.+)'; return false$/)[1]
+            : torrent.href,
           timestamp: Date.parse(table.textContent.match(/Posted:\s*([0-9-]+\s*[0-9:]+)/)[1]),
-          size: size,
+          size,
           seeds: +table.textContent.match(/Seeds:\s*(\d+)/)[1],
           peers: +table.textContent.match(/Peers:\s*(\d+)/)[1]
         }
@@ -4389,7 +4256,7 @@
         attemptDownloadStep(galleryDownloadButton, skipWarningUrl, passGalleryView)
       } else {
         const archiveDownloadButton = xpathSelector(documentReceived, './/a[text() = "Archive Download"]')
-        if (archiveDownloadButton === null) {
+        if (!archiveDownloadButton) {
           // There is an error if the archive download link is not found. This should not happen, but is checked just in
           // case.
           handleError(galleryDownloadButton, 'unknownError', documentReceived.documentElement.outerHTML)
@@ -4415,7 +4282,7 @@
      */
     const selectTargetHath = function (galleryDownloadButton, documentReceived) {
       // Check whether the document received is actualy the archive selection page. #hathdl_form is used to check this.
-      if (documentReceived.getElementById('hathdl_form') === null) {
+      if (!documentReceived.getElementById('hathdl_form')) {
         if (documentReceived.querySelector('form[name = "ipb_login_form"]')) {
           // A page with a login form will be served instead when the user is not logged in.
           handleError(galleryDownloadButton, 'notLoggedInError')
@@ -4473,7 +4340,7 @@
      */
     const selectTargetArchive = function (galleryDownloadButton, documentReceived) {
       // Check whether the document received is actualy the archive selection page. #hathdl_form is used to check this.
-      if (documentReceived.getElementById('hathdl_form') === null) {
+      if (!documentReceived.getElementById('hathdl_form')) {
         if (documentReceived.querySelector('form[name = "ipb_login_form"]')) {
           // A page with a login form will be served instead when the user is not logged in.
           handleError(galleryDownloadButton, 'notLoggedInError')
@@ -4489,7 +4356,7 @@
       let archiveFormData
       if (shortcuts.archiveDownloadType === 'resample archive') {
         archiveTypeButton = documentReceived.querySelector('input[value = "Download Resample Archive"]:not([disabled])')
-        if (archiveTypeButton === null) {
+        if (!archiveTypeButton) {
           // Download the original archive if the resample archive is not available for the gallery.
           archiveTypeButton = documentReceived.querySelector('input[value = "Download Original Archive"]')
           archiveFormData = 'dltype=org&dlcheck=Download Original Archive'
@@ -4514,7 +4381,7 @@
     const acquireArchiverAddress = function (galleryDownloadButton, documentReceived) {
       // The archiver URL is always in the script element.
       const redirectScript = xpathSelector(documentReceived, './/script[contains(text(), "function gotonext()")]')
-      if (redirectScript === null) {
+      if (!redirectScript) {
         handleError(galleryDownloadButton, 'unknownError', documentReceived.documentElement.outerHTML)
         return
       }
@@ -4550,7 +4417,7 @@
       // Check whether the document received is actualy a download ready page, because a file processing page could be
       // served instead. The file processing step probably only happens when the archive takes time to recreate, and
       // it is just an additional step between locating server and download ready.
-      if (downloadLink === null) {
+      if (!downloadLink) {
         const redirectScript = xpathSelector(documentReceived, './/script[contains(text(), "function gotonext()")]')
         if (redirectScript !== null) {
           // In this case, the function for the last step, acquireArchiverAddress(), is designed to handle this file
@@ -4632,7 +4499,7 @@
           startDownloadProtection()
         }
       } else if (inPageDownloadMode) {
-        // When the state is set to a terminal state, the page download mode is not necessarily active.
+        // When the button state is set to a terminal state, the page download mode is not necessarily active.
         inPageDownloadMode = false
         if (shortcuts.downloadProtectionEnabled) {
           endDownloadProtection()
@@ -4665,12 +4532,19 @@
       if (typeof clickEvent !== 'undefined' && checkPageCompletion()) {
         return
       }
+      // When the page download button is clicked, do nothing if the control panel is currently open.
+      if (typeof clickEvent !== 'undefined' && document.getElementById('controlPanel')) {
+        return
+      }
 
       if (typeof clickEvent === 'undefined') {
         // If this function is called without the "clickEvent" argument, it must have been called automatically from
         // changeButtonState() after a download has reached a terminal state in the page download mode. In this case,
-        // start one gallery download to fill in the gap if possible.
-        const nextIdleButton = document.body.querySelector('.galleryDownloadButton.idle')
+        // start one gallery download to fill in the gap if possible. Since it dynamically looks for the next one to
+        // download, the user can manually skip a gallery during a running page download by editing the HTML element and
+        // adding "done" to its class.
+        const nextIdleButton = document.querySelector('.galleryDownloadButton.idle')
+
         // When there are download attempts still running but no button left in the "idle" state, checkPageCompletion()
         // will not declare completion and hence this function will still run. Therefore, it needs to check whether
         // there is still a "idle" button to be clicked. Also, it should not start a download when the concurrent
@@ -4684,7 +4558,7 @@
           // If the page download mode is not already active when this button is clicked, activate this mode and start
           // the set number of concurrent downloads if possible.
           changePageDownloadState('downloading')
-          const idleButtons = document.body.querySelectorAll('.galleryDownloadButton.idle')
+          const idleButtons = document.querySelectorAll('.galleryDownloadButton.idle')
           // Fewer or no downloads will be started if there are already some downloads running on this page when this
           // mode is entered.
           const numberToStart = Math.min(shortcuts.pageDownloadNumber - concurrentDownloadsRunning, idleButtons.length)
@@ -4710,12 +4584,12 @@
      * @returns {boolean} true if the current page has been completed; otherwise false.
      */
     const checkPageCompletion = function () {
-      if (document.body.querySelectorAll('.galleryDownloadButton.idle').length > 0) {
+      if (document.querySelectorAll('.galleryDownloadButton.idle').length > 0) {
         return false
       }
       // Only declare page completion when there is also no button in the "loading" or "downloading" state, because
       // these buttons may not necessarily succeed.
-      const runningCount = document.body.querySelectorAll('.galleryDownloadButton.loading, ' +
+      const runningCount = document.querySelectorAll('.galleryDownloadButton.loading, ' +
         '.galleryDownloadButton.downloading').length
       if (runningCount > 0) {
         return false
@@ -4724,7 +4598,7 @@
       // Start declaring page completion after checking for the number of buttons in the states above.
 
       // Check whether there are failed downloads that require the user's attention.
-      const errorCount = document.body.querySelectorAll('.galleryDownloadButton.unavailable, ' +
+      const errorCount = document.querySelectorAll('.galleryDownloadButton.unavailable, ' +
         '.galleryDownloadButton.failed').length
       if (errorCount === 0) {
         changePageDownloadState('done')
@@ -4740,14 +4614,14 @@
     const schedulePageDownload = async function () {
       // Check whether there is a next page by trying to select a clickable next page button. This button is always
       // there, but it only has the "onclick" attribute and an anchor child element when there is a next page.
-      const nextPage = document.querySelector('table.ptt td:last-child[onclick]')
-      if (nextPage === null) {
+      const nextPage = document.querySelector('#unext[href]')
+      if (!nextPage) {
         return
       }
 
       // Record the URL of the next page to be downloaded using the URL of the current page as key. This should have no
       // negative effect if this key already exists. Then go to the next page after updating the userscript storage.
-      values.useAutomatedDownloads.pagesToDownload[windowUrl] = nextPage.firstElementChild.href
+      values.useAutomatedDownloads.pagesToDownload[windowUrl] = nextPage.href
       await api.setValue('values', JSON.stringify(values))
       nextPage.click()
     }
@@ -4780,15 +4654,18 @@
      */
     const startDownloadProtection = function () {
       const downloadProtectionStyles = `
-        /* base gallery list */
-        #nb, #openConfigButton, #additionalFiltersButton, #dms select, table.ptt, table.ptb, p.ip > a, div.dp > a,
-        input[type = "submit"],
-        /* search index only */
-        input[value = "Clear Filter"], input[type = "file"],
-        /* favorite list only */
-        div.fp, input[value = "Clear"], a[href *= "inline_set=fs_"], select[name = "ddact"],
-        /* gallery toplists only */
-        #ot > a,
+        /* search box */
+        .idi input,
+        /* script buttons */
+        #nb, #openConfigButton, #additionalFiltersButton,
+        /* search navigation area */
+        .searchtext a, .searchnav a, .searchnav select,
+        /* bottom links */
+        .dp > a,
+        /* watched list only */
+        .ip a,
+        /* favourite list only */
+        .ido > .nosel, .ido > .nosel + div, #favact,
         /* uploader link in four display modes */
         td.glhide > div > a, .gl3e > .ir + div > a
         { pointer-events: none; } `
@@ -4805,7 +4682,7 @@
       document.head.removeChild(document.getElementById('downloadProtectionStyles'))
       // Reverse the effects of openGalleriesSeparately() when it is not enabled in the settings.
       if (!settings.openGalleriesSeparately.featureEnabled) {
-        const galleryLinks = document.body.querySelectorAll('.gl3m.glname > a, .gl3c.glname > a, .gl1e > div > a, ' +
+        const galleryLinks = document.querySelectorAll('.gl3m.glname > a, .gl3c.glname > a, .gl1e > div > a, ' +
           '.gl2e > div > a, .gl1t > a, .gl4t.glname > div > a, .gl3t > a')
         for (const galleryLink of galleryLinks) {
           galleryLink.onclick = null
@@ -4829,19 +4706,19 @@
     switch (displayMode) {
       case 'minimal':
       case 'minimal+':
-        galleryLinks = document.body.querySelectorAll('.gl3m.glname > a')
+        galleryLinks = document.querySelectorAll('.gl3m.glname > a')
         break
       case 'compact':
-        galleryLinks = document.body.querySelectorAll('.gl3c.glname > a')
+        galleryLinks = document.querySelectorAll('.gl3c.glname > a')
         break
       case 'extended':
-        galleryLinks = document.body.querySelectorAll('.gl1e > div > a, .gl2e > div > a')
+        galleryLinks = document.querySelectorAll('.gl1e > div > a, .gl2e > div > a')
         break
       case 'thumbnail':
         // In this display mode, the anchors on gallery titles are located differently in the DOM tree between the
         // search index (.gl1t > a) and the favorite list (.gl1t > .gl4t.glname.glft > div > a), but the anchors on
         // gallery thumbnails are not. Therefore, three selectors are needed in total to select all links.
-        galleryLinks = document.body.querySelectorAll('.gl1t > a, .gl4t.glname > div > a, .gl3t > a')
+        galleryLinks = document.querySelectorAll('.gl1t > a, .gl4t.glname > div > a, .gl3t > a')
     }
     for (const galleryLink of galleryLinks) {
       galleryLink.onclick = function (anchorEvent) {
@@ -4883,8 +4760,8 @@
         #jumpButtonHost:hover { right: -3px; transition: 0.3s; }
         #jumpToTopButton, #jumpToBottomButton { height: 10vh; width: 10vw; margin: auto; font-size: 6vh !important;
           line-height: 6vh; }
-        #jumpToTopButton { border-radius: 3px 0 0 0; }
-        #jumpToBottomButton { border-radius: 0 0 0 3px; }`
+        #jumpToTopButton { border-radius: 3px 0 0 0; border-bottom: 0; }
+        #jumpToBottomButton { border-radius: 0 0 0 3px; border-top: 0; }`
     }
 
     const jumpBehaviour = settings.addJumpButtons.jumpBehaviourStyle === 'smoothly' ? 'smooth' : 'auto'
@@ -4961,7 +4838,7 @@
       // would be treated as part of the URL by the site, such as other types of brackets. "">" and "</" are used to
       // delimit URLs in tags or surrounded by tags, respectively.
       const urls = formattedHTML.match(/https?:\/\/\S+?(?=[[\],.;:]?(?:\s|$)|">|<\/)/gm)
-      if (urls === null) {
+      if (!urls) {
         continue
       }
       // Sort the URLs found from long to short so that the longer URLs will be replaced first, because otherwise a URL
