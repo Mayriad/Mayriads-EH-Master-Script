@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            Mayriad's EH Master Script
 // @namespace       https://github.com/Mayriad
-// @version         2.2.1
+// @version         2.2.2
 // @author          Mayriad
 // @description     Adds dozens of features to E-Hentai
 // @icon            https://e-hentai.org/favicon.ico
@@ -20,6 +20,9 @@
 // @connect         hentaiverse.org
 // @connect         *
 // @run-at          document-start
+// @grant           GM.setValue
+// @grant           GM.getValue
+// @grant           GM.xmlHttpRequest
 // @grant           GM_setValue
 // @grant           GM_getValue
 // @grant           GM_xmlhttpRequest
@@ -353,12 +356,12 @@
           'whitelist for GM.download() in Tampermonkey advanced settings. This means you have either not added ' +
           '.torrent to this list or removed .zip from it. Please ensure both extensions are whitelisted in the ' +
           '"downloads beta" section in Tampermonkey advanced settings.',
-        gmDownloadNotEnabledError: 'An archive download failed, because the GM.download() function is not enabled ' +
+        gmDownloadNotEnabledError: 'A download attempt failed, because the GM.download() function is not enabled ' +
           'or does not have permission. Please check the "downloads beta" section in your Tampermonkey settings.',
-        gmDownloadNotSupportedError: 'An archive download failed, because the GM.download() function is not ' +
-          'supported by your userscript engine. Please note that the archive download feature requires Tampermonkey ' +
-          'running on modern browsers.',
-        crossOriginNotAllowedError: 'An archive download failed, because this script is not allowed to access ' +
+        gmDownloadNotSupportedError: 'A download attempt failed, because the GM.download() function is not ' +
+          'supported by your userscript engine or browser. Please note that this download method is only supported ' +
+          'by Tampermonkey running on certain browsers.',
+        crossOriginNotAllowedError: 'A download attempt failed, because this script is not allowed to access ' +
           'cross-origin archive servers. Archives are served from random cross-origin servers, so this script needs ' +
           'to be granted access to all domains at all times in Tampermonkay.',
         unknownError: 'The download cannot be initiated for some unknown reason.'
