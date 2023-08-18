@@ -816,6 +816,9 @@
         /* cover the vote details but avoid application to current and original titles and usernames */
         body > div > div:nth-child(3) td:not(:nth-child(3)),
         body > div > div:nth-child(5) td:not(:nth-child(3)) { filter: brightness(2); }`
+    } else if (windowUrl.includes('tools.php?act=temptags')) {
+      customDarkStyles += `
+        .sources { border: 1px solid #000000; background: #4f535b; }`
     }
 
     const scientificDarkStylesElement = appendStyleText(document.documentElement, 'scientificDarkStyles',
