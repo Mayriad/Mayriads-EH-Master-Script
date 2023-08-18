@@ -2239,7 +2239,7 @@
       }
 
       const newMessagesButton = document.querySelector('#userlinks a[href *= "act=Msg"]')
-      if (typeof newMessagesButton !== 'undefined') {
+      if (newMessagesButton !== null) {
         const unreadPmCount = newMessagesButton.textContent.match(/\d+/)[0]
         if (unreadPmCount > 0) {
           newMessagesButton.style.color = 'red'
