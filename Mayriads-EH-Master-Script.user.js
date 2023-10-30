@@ -4194,12 +4194,12 @@
         // its download link is unavailable. It should be removed from the torrent list when it becomes unseeded.
         // undefined will be returned and this torrent will need to be screen out based on this.
       } else {
-        // Convert GB and KB to MB.
-        const sizeAndUnit = table.textContent.match(/Size:\s*([0-9.]+)\s*(KB|MB|GB)/)
+        // Convert GiB and KiB to MiB.
+        const sizeAndUnit = table.textContent.match(/Size:\s*([0-9.]+)\s*(KiB|MiB|GiB)/)
         let size = +sizeAndUnit[1]
-        if (sizeAndUnit[2] === 'KB') {
+        if (sizeAndUnit[2] === 'KiB') {
           size /= 1024
-        } else if (sizeAndUnit[2] === 'GB') {
+        } else if (sizeAndUnit[2] === 'GiB') {
           size *= 1024
         }
         return {
