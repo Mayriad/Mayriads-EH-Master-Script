@@ -2362,11 +2362,10 @@
       #i3 > a > img { object-fit: contain; max-width: initial !important; max-height: initial !important; }
       /* reposition elements */
       #topControlGroup, #bottomControlGroup { display: flex; justify-content: center; }
-      #topControlGroup > h1, #i2, #i4, #i5, #i6, #i7 { position: absolute; }
+      #topControlGroup > h1, #i2, #i4, #i5, #i6 { position: absolute; }
       #topControlGroup > h1, div.if { margin: 0; }
       #topControlGroup > h1 { width: 90vw; top: 0; padding-top: 10px; white-space: nowrap; overflow: hidden; }
       #i2 { top: 0; padding-top: 35px; }
-      #i7 { bottom: 0; padding-bottom: 20px; }
       #i6 { bottom: 0; padding-bottom: 40px; }
       #i5 { bottom: 0; padding-bottom: 55px; }
       #i4 { bottom: 0; padding-bottom: 80px; }
@@ -2375,9 +2374,9 @@
       /* add hover animation and shadow */
       #topControlGroup, #bottomControlGroup { opacity: 0; transition-duration: 0.3s; }
       #topControlGroup:hover, #bottomControlGroup:hover { opacity: 1; }
-      #topControlGroup > h1, #i2, #i4, #i5, #i6, #i7
+      #topControlGroup > h1, #i2, #i4, #i5, #i6
         { text-shadow: 0 1px 3px #000000, 1px 0 3px #000000, 0 -1px 3px #000000, -1px 0 3px #000000; }
-      #topControlGroup, #bottomControlGroup, #i6 > a, #i7 > a { color: #f1f1f1 }
+      #topControlGroup, #bottomControlGroup, #i6 > div > a { color: #f1f1f1 }
       div.sn img, div.sb img { filter: drop-shadow(0px 0px 3px #FFFFFF); }
       /* add additional shading on top and bottom */
       div.sni { display: flex; position: relative; justify-content: center; }
@@ -2409,7 +2408,6 @@
     bottomControlGroup.appendChild(document.getElementById('i4'))
     bottomControlGroup.appendChild(document.getElementById('i5'))
     bottomControlGroup.appendChild(document.getElementById('i6'))
-    bottomControlGroup.appendChild(document.getElementById('i7'))
     document.getElementById('i1').appendChild(bottomControlGroup)
 
     /**
